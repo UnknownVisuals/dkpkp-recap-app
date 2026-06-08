@@ -32,21 +32,34 @@ export function SpbTable({ logs }: SpbTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody className="text-xs leading-normal">
-          {logs.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-bold font-mono">{item.id}</TableCell>
-              <TableCell className="text-muted-foreground whitespace-nowrap">
-                {item.date}
-              </TableCell>
-              <TableCell className="font-semibold">{item.recipient}</TableCell>
-              <TableCell className="text-muted-foreground max-w-75 wrap-break-word">
-                {item.activity}
-              </TableCell>
-              <TableCell className="font-bold text-right whitespace-nowrap text-sm">
-                {item.amount}
+          {logs.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="text-center py-8 text-muted-foreground"
+              >
+                Belum ada data rekapitulasi SPB di database.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            logs.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-bold font-mono">{item.id}</TableCell>
+                <TableCell className="text-muted-foreground whitespace-nowrap">
+                  {item.date}
+                </TableCell>
+                <TableCell className="font-semibold">
+                  {item.recipient}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-75 wrap-break-word">
+                  {item.activity}
+                </TableCell>
+                <TableCell className="font-bold text-right whitespace-nowrap text-sm">
+                  {item.amount}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </Card>

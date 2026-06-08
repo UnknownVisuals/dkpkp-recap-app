@@ -7,16 +7,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { SpjLogItem } from "@/types/spj";
 
 interface SpjTableProps {
-  logs: Array<{
-    id: string;
-    relatedSpb: string;
-    date: string;
-    realization: string;
-    file: string;
-  }>;
+  logs: SpjLogItem[];
 }
 
 export function SpjTable({ logs }: SpjTableProps) {
@@ -25,33 +19,42 @@ export function SpjTable({ logs }: SpjTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="font-bold w-37.5">No. SPJ</TableHead>
+            <TableHead className="font-bold w-35">No. SPJ</TableHead>
             <TableHead className="font-bold w-35">No. SPB Terkait</TableHead>
             <TableHead className="font-bold w-27.5">Tanggal</TableHead>
             <TableHead className="font-bold">Total Realisasi</TableHead>
-            <TableHead className="font-bold text-right w-35">
-              Arsip Berkas
+            <TableHead className="font-bold text-right w-40">
+              Penerima Dana
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="text-xs leading-normal">
-          {logs.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-bold font-mono">{item.id}</TableCell>
-              <TableCell className="text-muted-foreground font-mono">
-                {item.relatedSpb}
-              </TableCell>
-              <TableCell className="text-muted-foreground whitespace-nowrap">
-                {item.date}
-              </TableCell>
-              <TableCell className="font-bold">{item.realization}</TableCell>
-              <TableCell className="text-right">
-                <span className="inline-flex items-center gap-1.5 font-semibold hover:underline">
-                  <FileText className="h-3.5 w-3.5" /> {item.file}
-                </span>
+          {logs.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="text-center py-8 text-muted-foreground"
+              >
+                Belum ada data rekapitulasi SPJ di database.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            logs.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-bold font-mono">{item.id}</TableCell>
+                <TableCell className="text-muted-foreground font-mono">
+                  {item.relatedSpb}
+                </TableCell>
+                <TableCell className="text-muted-foreground whitespace-nowrap">
+                  {item.date}
+                </TableCell>
+                <TableCell className="font-bold">{item.realization}</TableCell>
+                <TableCell className="text-right font-medium">
+                  {item.recipient}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </Card>

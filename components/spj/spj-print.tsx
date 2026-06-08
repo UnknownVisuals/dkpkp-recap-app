@@ -1,13 +1,13 @@
 import { Building2 } from "lucide-react";
+import { SpjFormData } from "@/types/spj";
 
 interface SpjPrintProps {
-  data: any;
+  data: SpjFormData;
 }
 
 export function SpjPrint({ data }: SpjPrintProps) {
   return (
     <div className="hidden print:block font-serif max-w-full text-black text-[14px] leading-relaxed p-0">
-      {/* Official DKI Jakarta Letterhead (Kop Surat) */}
       <div className="flex items-start gap-4 border-b-4 border-double border-black pb-3 relative font-sans">
         <div className="w-14 h-18 border border-black flex items-center justify-center text-black shrink-0">
           <Building2 className="h-7 w-7 text-black" />
@@ -19,7 +19,7 @@ export function SpjPrint({ data }: SpjPrintProps) {
           <h1 className="text-[13px] font-extrabold uppercase tracking-tight leading-snug">
             Dinas Ketahanan Pangan, Kelautan dan Pertanian
           </h1>
-          <p className="text-[10px] font-medium text-slate-600 mt-0.5 leading-tight">
+          <p className="text-[9px] font-medium text-slate-600 mt-0.5 leading-tight">
             Jalan Gunung Sahari Raya No.11 Telp. 6007251, 6286625, Sentral:
             021-XXXXXX, Fax. 6241617, 6007247
             <br />
@@ -28,7 +28,6 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </div>
       </div>
 
-      {/* Document Title Block */}
       <div className="text-center space-y-0.5 pt-4">
         <h3 className="text-base font-bold uppercase underline decoration-1 underline-offset-4">
           SURAT PERTANGGUNGJAWABAN REALISASI (SPJ)
@@ -38,7 +37,6 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </p>
       </div>
 
-      {/* Narrative Context Prose */}
       <div className="space-y-3 pt-4 text-justify">
         <p className="indent-8">
           Berdasarkan Surat Perintah Bayar Nomor{" "}
@@ -48,7 +46,6 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </p>
       </div>
 
-      {/* Inline Aligned Values */}
       <div className="space-y-2.5 text-sm pt-6">
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Pihak Penerima Dana</span>
@@ -80,7 +77,6 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </div>
       </div>
 
-      {/* Verification and Signature Matrix */}
       <div className="pt-20 text-center font-sans text-xs grid grid-cols-2 gap-12">
         <div className="space-y-16">
           <p className="font-medium">Verifikator Keuangan</p>

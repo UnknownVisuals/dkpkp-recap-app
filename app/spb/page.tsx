@@ -1,18 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Database, Printer, FileText } from "lucide-react";
-
+import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
 import { SpbForm } from "@/components/spb/spb-form";
 import { SpbTable } from "@/components/spb/spb-table";
 import { SpbPrint } from "@/components/spb/spb-print";
+import { createClient } from "@/lib/supabase/client";
+import { SpbFormData, SpbLogItem, SupabaseSpbRow } from "@/types/spb";
 
 export default function SpbPage() {
-  const [formData, setFormData] = useState({
+  const supabase = createClient();
+  const [recaps, setRecaps] = useState<SpbLogItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState<SpbFormData>({
     noSpb: "719 / 28.26 / Y",
     tanggal: "2026-04-27",
     nominal: "2500000",
@@ -27,21 +31,67 @@ export default function SpbPage() {
     kodeRekening: "5.1.02.02.01.00004",
     namaPptk: "Solihin",
     nipPptk: "197206051998031010",
+    namaPpk: "Lya Imbasari",
+    nipPpk: "196907071999032003",
   });
 
-  const [recaps] = useState([
-    {
-      id: "719/28.26/Y",
-      date: "2026-04-27",
-      recipient: "Daftar Nama Terlampir",
-      amount: "Rp 2.500.000",
-      activity:
-        "Pelaksanaan Pengawasan Keamanan Pangan Segar Distribusi Lintas Daerah",
-    },
-  ]);
+  const fetchSpbLogs = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("spb_recap")
+      .select("no_spb, tanggal, kepada, nominal, kegiatan")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      const mappedData: SpbLogItem[] = (data as SupabaseSpbRow[]).map(
+        (item) => ({
+          id: item.no_spb,
+          date: item.tanggal,
+          recipient: item.kepada,
+          amount: `Rp ${Number(item.nominal).toLocaleString("id-ID")}`,
+          activity: item.kegiatan,
+        }),
+      );
+      setRecaps(mappedData);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchSpbLogs();
+  }, [fetchSpbLogs]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSpb = async () => {
+    setLoading(true);
+    const { error } = await supabase.from("spb_recap").insert([
+      {
+        no_spb: formData.noSpb,
+        tanggal: formData.tanggal,
+        nominal: Number(formData.nominal),
+        terbilang: formData.terbilang,
+        kepada: formData.kepada,
+        untuk_pembayaran: formData.untukPembayaran,
+        atas_dasar: formData.atasDasar,
+        dibebankan_pada: formData.dibebankanPada || null,
+        kegiatan: formData.kegiatan,
+        sub_kegiatan: formData.subKegiatan,
+        kode_rekening: formData.kodeRekening,
+        nama_pptk: formData.namaPptk,
+        nip_pptk: formData.nipPptk,
+        nama_ppk: formData.namaPpk,
+        nip_ppk: formData.nipPpk,
+      },
+    ]);
+
+    setLoading(false);
+    if (error) {
+      alert(`Gagal menyimpan data: ${error.message}`);
+    } else {
+      alert("Data SPB berhasil disimpan ke database!");
+      fetchSpbLogs();
+    }
   };
 
   return (
@@ -58,30 +108,15 @@ export default function SpbPage() {
               <ArrowLeft className="h-4 w-4" /> Kembali
             </Link>
           </Button>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="gap-1.5 px-3 py-1 text-xs h-9">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              SPB Workspace
-            </Badge>
-            <Button
-              onClick={() => window.print()}
-              variant="outline"
-              size="sm"
-              className="gap-2 h-9 px-4 font-bold"
-            >
-              <Printer className="h-4 w-4 text-muted-foreground" /> Cetak
-              Dokumen Resmi
-            </Button>
-          </div>
         </div>
 
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border bg-white shadow-sm shrink-0">
             <FileText className="h-6 w-6" />
           </div>
           <div className="space-y-0.5">
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Workspace Surat Perintah Bayar
+              Surat Perintah Bayar (SPB)
             </h1>
             <p className="text-xs text-muted-foreground font-medium">
               Kelola penyerapan dana alokasi internal menggunakan form standar
@@ -93,10 +128,10 @@ export default function SpbPage() {
         <Tabs defaultValue="form-entry" className="w-full space-y-6">
           <TabsList className="w-full grid grid-cols-2 h-12">
             <TabsTrigger value="form-entry" className="text-xs font-bold gap-2">
-              <Plus className="h-4 w-4" /> PENGISIAN FORM OPERASIONAL
+              <Plus className="h-4 w-4" /> FORM
             </TabsTrigger>
             <TabsTrigger value="recap-log" className="text-xs font-bold gap-2">
-              <Database className="h-4 w-4" /> LIHAT LOG REKAPITULASI
+              <Database className="h-4 w-4" /> TABEL REKAP
             </TabsTrigger>
           </TabsList>
 
@@ -105,6 +140,8 @@ export default function SpbPage() {
               formData={formData}
               onChange={handleFieldChange}
               onPrint={() => window.print()}
+              onSave={handleSaveSpb}
+              isLoading={loading}
             />
           </TabsContent>
 

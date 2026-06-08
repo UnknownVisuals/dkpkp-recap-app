@@ -1,13 +1,13 @@
+import { SpbFormData } from "@/types/spb";
 import { Building2 } from "lucide-react";
 
 interface SpbPrintProps {
-  data: any;
+  data: SpbFormData;
 }
 
 export function SpbPrint({ data }: SpbPrintProps) {
   return (
     <div className="hidden print:block font-serif max-w-full text-black text-[14px] leading-relaxed p-0">
-      {/* Official DKI Jakarta Letterhead (Kop Surat) */}
       <div className="flex items-start gap-4 border-b-4 border-double border-black pb-3 relative font-sans">
         <div className="w-14 h-18 border border-black flex items-center justify-center text-black shrink-0">
           <Building2 className="h-7 w-7 text-black" />
@@ -28,7 +28,6 @@ export function SpbPrint({ data }: SpbPrintProps) {
         </div>
       </div>
 
-      {/* Document Sub-title Hierarchy */}
       <div className="text-center space-y-0.5 pt-4">
         <h3 className="text-base font-bold uppercase underline decoration-1 underline-offset-4">
           SURAT PERINTAH BAYAR (SPB)
@@ -38,7 +37,6 @@ export function SpbPrint({ data }: SpbPrintProps) {
         </p>
       </div>
 
-      {/* Narrative Body Statement */}
       <div className="space-y-3 pt-4 text-justify">
         <p className="indent-8">
           Saya yang bertanda tangan di bawah ini, selaku Pengguna Anggaran
@@ -56,7 +54,6 @@ export function SpbPrint({ data }: SpbPrintProps) {
         </p>
       </div>
 
-      {/* Traditional Aligned Form Fields Layout */}
       <div className="space-y-2.5 text-sm pt-6">
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Kepada</span>
@@ -102,7 +99,6 @@ export function SpbPrint({ data }: SpbPrintProps) {
         </div>
       </div>
 
-      {/* Traditional 2x2 Official Signature Block Mapping */}
       <div className="pt-16 text-center font-sans text-xs grid grid-cols-2 gap-12">
         <div className="space-y-16">
           <p className="font-medium">Bendahara Pengeluaran</p>

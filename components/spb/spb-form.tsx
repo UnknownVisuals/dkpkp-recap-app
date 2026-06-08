@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,22 +12,54 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Calendar,
-  DollarSign,
-  User,
-  Hash,
-  CheckCircle2,
-  Printer,
-} from "lucide-react";
+import { SpbFormData } from "@/types/spb";
 
 interface SpbFormProps {
-  formData: any;
+  formData: SpbFormData;
   onChange: (key: string, value: string) => void;
   onPrint: () => void;
+  onSave: () => Promise<void>;
+  isLoading: boolean;
 }
 
-export function SpbForm({ formData, onChange, onPrint }: SpbFormProps) {
+export function SpbForm({
+  formData,
+  onChange,
+  onPrint,
+  onSave,
+  isLoading,
+}: SpbFormProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const requiredFields = [
+    { key: "noSpb", label: "Nomor Berkas Dokumen SPB" },
+    { key: "tanggal", label: "Tanggal Perintah Pembayaran" },
+    { key: "nominal", label: "Jumlah Nominal Pengeluaran" },
+    { key: "terbilang", label: "Jumlah Uang Dalam Huruf" },
+    { key: "kepada", label: "Kepada Penerima Bayar / Vendor" },
+    { key: "untukPembayaran", label: "Tujuan Rincian Keperluan Pembayaran" },
+    { key: "kegiatan", label: "Nama Paket Kegiatan Anggaran Dinas" },
+    { key: "subKegiatan", label: "Kode Mata Anggaran Sub Kegiatan" },
+    { key: "kodeRekening", label: "Kode Rekening Belanja Utama" },
+  ];
+
+  const validateForm = async () => {
+    const currentErrors: Record<string, string> = {};
+
+    requiredFields.forEach((field) => {
+      const value = formData[field.key as keyof SpbFormData];
+      if (!value || value.toString().trim() === "") {
+        currentErrors[field.key] = `${field.label} tidak boleh kosong`;
+      }
+    });
+
+    setErrors(currentErrors);
+
+    if (Object.keys(currentErrors).length === 0) {
+      await onSave();
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="border-b">
@@ -42,112 +75,235 @@ export function SpbForm({ formData, onChange, onPrint }: SpbFormProps) {
         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Nomor Berkas SPB</Label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={formData.noSpb}
-                  onChange={(e) => onChange("noSpb", e.target.value)}
-                  className="pl-10 h-10 text-sm"
-                />
-              </div>
+              <Label htmlFor="noSpb" className="text-xs font-bold">
+                Nomor Berkas Dokumen SPB
+              </Label>
+              <Input
+                id="noSpb"
+                value={formData.noSpb}
+                onChange={(e) => onChange("noSpb", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.noSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.noSpb && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.noSpb}
+                </p>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Tanggal Perintah</Label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="date"
-                  value={formData.tanggal}
-                  onChange={(e) => onChange("tanggal", e.target.value)}
-                  className="pl-10 h-10 text-sm"
-                />
-              </div>
+              <Label htmlFor="tanggal" className="text-xs font-bold">
+                Tanggal Perintah Pembayaran
+              </Label>
+              <Input
+                id="tanggal"
+                type="date"
+                value={formData.tanggal}
+                onChange={(e) => onChange("tanggal", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.tanggal ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.tanggal && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.tanggal}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">
-                Nominal Pembayaran (Rp)
-              </Label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="number"
-                  value={formData.nominal}
-                  onChange={(e) => onChange("nominal", e.target.value)}
-                  className="pl-10 h-10 text-sm"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold">
-                Uang Dalam Huruf (Terbilang)
+              <Label htmlFor="nominal" className="text-xs font-bold">
+                Jumlah Nominal Pengeluaran (Rp)
               </Label>
               <Input
+                id="nominal"
+                type="number"
+                value={formData.nominal}
+                onChange={(e) => onChange("nominal", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.nominal && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.nominal}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="terbilang" className="text-xs font-bold">
+                Jumlah Uang Dalam Huruf (Terbilang)
+              </Label>
+              <Input
+                id="terbilang"
                 value={formData.terbilang}
                 onChange={(e) => onChange("terbilang", e.target.value)}
-                className="h-10 text-sm"
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.terbilang ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
+              {errors.terbilang && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.terbilang}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">
-                Kepada Penerima / Vendor
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={formData.kepada}
-                  onChange={(e) => onChange("kepada", e.target.value)}
-                  className="pl-10 h-10 text-sm"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold">
-                Untuk Rincian Pembayaran
+              <Label htmlFor="kepada" className="text-xs font-bold">
+                Kepada Penerima Bayar / Vendor
               </Label>
               <Input
+                id="kepada"
+                value={formData.kepada}
+                onChange={(e) => onChange("kepada", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.kepada ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.kepada && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.kepada}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="untukPembayaran" className="text-xs font-bold">
+                Tujuan Rincian Keperluan Pembayaran
+              </Label>
+              <Input
+                id="untukPembayaran"
                 value={formData.untukPembayaran}
                 onChange={(e) => onChange("untukPembayaran", e.target.value)}
-                className="h-10 text-sm"
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.untukPembayaran ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
+              {errors.untukPembayaran && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.untukPembayaran}
+                </p>
+              )}
             </div>
           </div>
 
           <Separator />
 
           <div className="space-y-2">
-            <Label className="text-xs font-bold">
-              Nama Paket Kegiatan Anggaran
+            <Label htmlFor="kegiatan" className="text-xs font-bold">
+              Nama Paket Kegiatan Anggaran Dinas
             </Label>
             <Input
+              id="kegiatan"
               value={formData.kegiatan}
               onChange={(e) => onChange("kegiatan", e.target.value)}
-              className="h-10 text-sm"
+              disabled={isLoading}
+              className={`h-10 text-sm ${errors.kegiatan ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
+            {errors.kegiatan && (
+              <p className="text-[11px] font-medium text-destructive">
+                {errors.kegiatan}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Kode Sub Kegiatan</Label>
+              <Label htmlFor="subKegiatan" className="text-xs font-bold">
+                Kode Mata Anggaran Sub Kegiatan
+              </Label>
               <Input
+                id="subKegiatan"
                 value={formData.subKegiatan}
                 onChange={(e) => onChange("subKegiatan", e.target.value)}
-                className="h-10 text-sm font-mono"
+                disabled={isLoading}
+                className={`h-10 text-sm font-mono ${errors.subKegiatan ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
+              {errors.subKegiatan && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.subKegiatan}
+                </p>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Kode Rekening Utama</Label>
+              <Label htmlFor="kodeRekening" className="text-xs font-bold">
+                Kode Rekening Belanja Utama
+              </Label>
               <Input
+                id="kodeRekening"
                 value={formData.kodeRekening}
                 onChange={(e) => onChange("kodeRekening", e.target.value)}
-                className="h-10 text-sm font-mono"
+                disabled={isLoading}
+                className={`h-10 text-sm font-mono ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
+              {errors.kodeRekening && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.kodeRekening}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="p-4 border rounded-lg space-y-4">
+              <span className="text-[11px] font-extrabold tracking-wide uppercase text-muted-foreground block">
+                Pejabat Pelaksana Teknis Kegiatan (PPTK)
+              </span>
+              <div className="space-y-2">
+                <Label className="text-[11px] font-medium">
+                  Nama Lengkap Pejabat
+                </Label>
+                <Input
+                  value={formData.namaPptk || ""}
+                  onChange={(e) => onChange("namaPptk", e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[11px] font-medium">
+                  NIP Pejabat Teknis
+                </Label>
+                <Input
+                  value={formData.nipPptk || ""}
+                  onChange={(e) => onChange("nipPptk", e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border rounded-lg space-y-4">
+              <span className="text-[11px] font-extrabold tracking-wide uppercase text-muted-foreground block">
+                Pejabat Pembuat Komitmen (PPK)
+              </span>
+              <div className="space-y-2">
+                <Label className="text-[11px] font-medium">
+                  Nama Lengkap Pejabat
+                </Label>
+                <Input
+                  value={formData.namaPpk || ""}
+                  onChange={(e) => onChange("namaPpk", e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[11px] font-medium">
+                  NIP Pejabat Komitmen
+                </Label>
+                <Input
+                  value={formData.nipPpk || ""}
+                  onChange={(e) => onChange("nipPpk", e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
             </div>
           </div>
 
@@ -157,16 +313,20 @@ export function SpbForm({ formData, onChange, onPrint }: SpbFormProps) {
               onClick={onPrint}
               variant="outline"
               size="lg"
+              disabled={isLoading}
               className="font-semibold text-sm"
             >
-              <Printer className="mr-2 h-4 w-4" /> Pratinjau Cetak A4
+              Cetak Dokumen
             </Button>
+
             <Button
               type="button"
+              onClick={validateForm}
+              disabled={isLoading}
               size="lg"
-              className="font-semibold text-sm px-6 flex items-center gap-2"
+              className="font-semibold text-sm px-6"
             >
-              <CheckCircle2 className="h-4 w-4" /> Simpan Transaksi Ke Supabase
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </form>

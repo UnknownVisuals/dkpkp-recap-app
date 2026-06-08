@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -11,24 +13,51 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Calendar,
-  DollarSign,
-  User,
-  Hash,
-  CheckCircle2,
-  Printer,
-  Link2,
-  UploadCloud,
-} from "lucide-react";
+import { SpjFormData } from "@/types/spj";
 
 interface SpjFormProps {
-  formData: any;
+  formData: SpjFormData;
   onChange: (key: string, value: string) => void;
   onPrint: () => void;
+  onSave: () => Promise<void>;
+  isLoading: boolean;
 }
 
-export function SpjForm({ formData, onChange, onPrint }: SpjFormProps) {
+export function SpjForm({
+  formData,
+  onChange,
+  onPrint,
+  onSave,
+  isLoading,
+}: SpjFormProps) {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const requiredFields = [
+    { key: "noSpj", label: "Nomor Registrasi SPJ" },
+    { key: "relatedSpb", label: "Referensi Hubungan Nomor SPB" },
+    { key: "tanggal", label: "Tanggal Pengajuan SPJ" },
+    { key: "realisasi", label: "Total Realisasi Anggaran Terpakai" },
+    { key: "namaPenerima", label: "Pihak Penerima Dana Anggaran Belanja" },
+    { key: "keterangan", label: "Keterangan Realisasi Belanja" },
+  ];
+
+  const validateForm = async () => {
+    const currentErrors: Record<string, string> = {};
+
+    requiredFields.forEach((field) => {
+      const value = formData[field.key as keyof SpjFormData];
+      if (!value || value.toString().trim() === "") {
+        currentErrors[field.key] = `${field.label} tidak boleh kosong`;
+      }
+    });
+
+    setErrors(currentErrors);
+
+    if (Object.keys(currentErrors).length === 0) {
+      await onSave();
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="border-b">
@@ -44,100 +73,120 @@ export function SpjForm({ formData, onChange, onPrint }: SpjFormProps) {
         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Nomor Registrasi SPJ</Label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={formData.noSpj}
-                  onChange={(e) => onChange("noSpj", e.target.value)}
-                  className="h-10 text-sm pl-10"
-                />
-              </div>
+              <Label htmlFor="noSpj" className="text-xs font-bold">
+                Nomor Registrasi SPJ
+              </Label>
+              <Input
+                id="noSpj"
+                value={formData.noSpj}
+                onChange={(e) => onChange("noSpj", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.noSpj ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.noSpj && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.noSpj}
+                </p>
+              )}
             </div>
+
             <div className="space-y-2">
-              <Label className="text-xs font-bold">
+              <Label htmlFor="relatedSpb" className="text-xs font-bold">
                 Referensi Hubungan Nomor SPB
               </Label>
-              <div className="relative">
-                <Link2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={formData.relatedSpb}
-                  onChange={(e) => onChange("relatedSpb", e.target.value)}
-                  className="h-10 text-sm font-mono pl-10"
-                />
-              </div>
+              <Input
+                id="relatedSpb"
+                value={formData.relatedSpb}
+                onChange={(e) => onChange("relatedSpb", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm font-mono ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.relatedSpb && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.relatedSpb}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-xs font-bold">Tanggal Pengajuan</Label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="date"
-                  value={formData.tanggal}
-                  onChange={(e) => onChange("tanggal", e.target.value)}
-                  className="h-10 text-sm pl-10"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold">
-                Total Nilai Realisasi Belanja (Rp)
+              <Label htmlFor="tanggal" className="text-xs font-bold">
+                Tanggal Pengajuan SPJ
               </Label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="number"
-                  value={formData.realisasi}
-                  onChange={(e) => onChange("realisasi", e.target.value)}
-                  className="h-10 text-sm pl-10"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-bold">
-              Pihak Penerima Alokasi Belanja
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                value={formData.namaPenerima}
-                onChange={(e) => onChange("namaPenerima", e.target.value)}
-                className="h-10 text-sm pl-10"
+                id="tanggal"
+                type="date"
+                value={formData.tanggal}
+                onChange={(e) => onChange("tanggal", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.tanggal ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
+              {errors.tanggal && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.tanggal}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="realisasi" className="text-xs font-bold">
+                Total Realisasi Anggaran Terpakai (Rp)
+              </Label>
+              <Input
+                id="realisasi"
+                type="number"
+                value={formData.realisasi}
+                onChange={(e) => onChange("realisasi", e.target.value)}
+                disabled={isLoading}
+                className={`h-10 text-sm ${errors.realisasi ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.realisasi && (
+                <p className="text-[11px] font-medium text-destructive">
+                  {errors.realisasi}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs font-bold">
-              Keterangan / Deskripsi Alokasi Belanja
+            <Label htmlFor="namaPenerima" className="text-xs font-bold">
+              Pihak Penerima Dana Anggaran Belanja
+            </Label>
+            <Input
+              id="namaPenerima"
+              value={formData.namaPenerima}
+              onChange={(e) => onChange("namaPenerima", e.target.value)}
+              disabled={isLoading}
+              className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
+            />
+            {errors.namaPenerima && (
+              <p className="text-[11px] font-medium text-destructive">
+                {errors.namaPenerima}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="keterangan" className="text-xs font-bold">
+              Keterangan / Rincian Realisasi Belanja
             </Label>
             <Textarea
+              id="keterangan"
               value={formData.keterangan}
               onChange={(e) => onChange("keterangan", e.target.value)}
+              disabled={isLoading}
               rows={3}
-              className="resize-none text-sm"
+              className={`resize-none text-sm ${errors.keterangan ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
+            {errors.keterangan && (
+              <p className="text-[11px] font-medium text-destructive">
+                {errors.keterangan}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs font-bold">
-              Lampiran Bukti Fisik Kwitansi Resmi
-            </Label>
-            <div className="border border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer">
-              <UploadCloud className="h-6 w-6 text-muted-foreground mb-1" />
-              <span className="text-xs font-semibold">
-                Pilih file nota transaksi untuk diupload
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                Format yang didukung: PDF / Gambar (Maks 5MB)
-              </span>
-            </div>
-          </div>
+          <Separator />
 
           <div className="pt-4 flex justify-end gap-3">
             <Button
@@ -145,16 +194,20 @@ export function SpjForm({ formData, onChange, onPrint }: SpjFormProps) {
               onClick={onPrint}
               variant="outline"
               size="lg"
+              disabled={isLoading}
               className="font-semibold text-sm"
             >
-              <Printer className="mr-2 h-4 w-4" /> Pratinjau Cetak
+              Cetak
             </Button>
+
             <Button
               type="button"
+              onClick={validateForm}
+              disabled={isLoading}
               size="lg"
-              className="font-semibold text-sm px-6 flex items-center gap-2"
+              className="font-semibold text-sm px-6"
             >
-              <CheckCircle2 className="h-4 w-4" /> Kunci Berkas SPJ
+              {isLoading ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </form>

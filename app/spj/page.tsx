@@ -1,18 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Database, Printer, FileText } from "lucide-react";
-
+import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
 import { SpjForm } from "@/components/spj/spj-form";
 import { SpjTable } from "@/components/spj/spj-table";
 import { SpjPrint } from "@/components/spj/spj-print";
+import { createClient } from "@/lib/supabase/client";
+import { SpjFormData, SpjLogItem, SupabaseSpjRow } from "@/types/spj";
 
 export default function SpjPage() {
-  const [formData, setFormData] = useState({
+  const supabase = createClient();
+  const [recaps, setRecaps] = useState<SpjLogItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState<SpjFormData>({
     noSpj: "120 / SPJ / DKPKP / 2026",
     relatedSpb: "719 / 28.26 / Y",
     tanggal: "2026-04-30",
@@ -21,18 +25,54 @@ export default function SpjPage() {
     namaPenerima: "Koordinator Lapangan TNI/Polri",
   });
 
-  const [recaps] = useState([
-    {
-      id: "120/SPJ/DKPKP/2026",
-      relatedSpb: "719/28.26/Y",
-      date: "2026-04-30",
-      realization: "Rp 2.450.000",
-      file: "lampiran_nota_kwitansi.pdf",
-    },
-  ]);
+  const fetchSpjLogs = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("spj_recap")
+      .select("no_spj, related_spb, tanggal, realisasi, nama_penerima")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      const mappedData: SpjLogItem[] = (data as SupabaseSpjRow[]).map(
+        (item) => ({
+          id: item.no_spj,
+          relatedSpb: item.related_spb,
+          date: item.tanggal,
+          realization: `Rp ${Number(item.realisasi).toLocaleString("id-ID")}`,
+          recipient: item.nama_penerima,
+        }),
+      );
+      setRecaps(mappedData);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchSpjLogs();
+  }, [fetchSpjLogs]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSpj = async () => {
+    setLoading(true);
+    const { error } = await supabase.from("spj_recap").insert([
+      {
+        no_spj: formData.noSpj,
+        related_spb: formData.relatedSpb,
+        tanggal: formData.tanggal,
+        realisasi: Number(formData.realisasi),
+        keterangan: formData.keterangan,
+        nama_penerima: formData.namaPenerima,
+      },
+    ]);
+
+    setLoading(false);
+    if (error) {
+      alert(`Gagal menyimpan data SPJ: ${error.message}`);
+    } else {
+      alert("Data SPJ berhasil dikunci ke database!");
+      fetchSpjLogs();
+    }
   };
 
   return (
@@ -49,30 +89,15 @@ export default function SpjPage() {
               <ArrowLeft className="h-4 w-4" /> Kembali
             </Link>
           </Button>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="gap-1.5 px-3 py-1 text-xs h-9">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              SPJ Workspace
-            </Badge>
-            <Button
-              onClick={() => window.print()}
-              variant="outline"
-              size="sm"
-              className="gap-2 h-9 px-4 font-bold"
-            >
-              <Printer className="h-4 w-4 text-muted-foreground" /> Cetak
-              Laporan Resmi
-            </Button>
-          </div>
         </div>
 
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border bg-white shadow-sm shrink-0">
             <FileText className="h-6 w-6" />
           </div>
           <div className="space-y-0.5">
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Workspace Surat Pertanggungjawaban
+              Surat Pertanggungjawaban (SPJ)
             </h1>
             <p className="text-xs text-muted-foreground font-medium">
               Kelola pencatatan realisasi belanja dinas dan verifikasi keabsahan
@@ -84,10 +109,10 @@ export default function SpjPage() {
         <Tabs defaultValue="form-entry" className="w-full space-y-6">
           <TabsList className="w-full grid grid-cols-2 h-12">
             <TabsTrigger value="form-entry" className="text-xs font-bold gap-2">
-              <Plus className="h-4 w-4" /> FORM REALISASI BARU
+              <Plus className="h-4 w-4" /> FORM
             </TabsTrigger>
             <TabsTrigger value="recap-log" className="text-xs font-bold gap-2">
-              <Database className="h-4 w-4" /> LOG DATA REKAPITULASI
+              <Database className="h-4 w-4" /> TABEL REKAP
             </TabsTrigger>
           </TabsList>
 
@@ -96,6 +121,8 @@ export default function SpjPage() {
               formData={formData}
               onChange={handleFieldChange}
               onPrint={() => window.print()}
+              onSave={handleSaveSpj}
+              isLoading={loading}
             />
           </TabsContent>
 
