@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 interface ModuleCardProps {
   title: string;
@@ -19,7 +18,7 @@ export function ModuleCard({
       href={href}
       // KUNCI: Menggunakan aspect-[3/4] agar kartu selalu berbentuk portrait (tinggi),
       // dengan min-h-[480px] agar teks tidak bertumpuk di layar handphone yang sangat kecil.
-      className="group relative block w-full aspect-3/4 min-h-120 rounded-[2.5rem] overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-900/50 transform hover:-translate-y-2"
+      className="group relative block w-full aspect-3/4 min-h-120 rounded-[1.5rem] overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-900/50 transform hover:-translate-y-2"
     >
       {/* 1. Full Bleed Background Image */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -34,7 +33,7 @@ export function ModuleCard({
       <div className="absolute inset-0 bg-linear-to-t from-slate-950/95 via-slate-900/40 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100" />
 
       {/* 3. Soft Inner Ring (Efek border kaca / 3D) */}
-      <div className="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/20 pointer-events-none" />
+      <div className="absolute inset-0 rounded-[1.5rem] ring-1 ring-inset ring-white/20 pointer-events-none" />
 
       {/* 4. Content Container (Terletak di bagian bawah) */}
       <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-end">
@@ -52,7 +51,6 @@ export function ModuleCard({
           <div className="flex items-center">
             <div className="flex items-center justify-center h-12 px-6 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-semibold text-sm transition-all duration-300 group-hover:bg-white group-hover:text-slate-900 group-hover:shadow-xl">
               Akses Modul
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </div>
           </div>
         </div>

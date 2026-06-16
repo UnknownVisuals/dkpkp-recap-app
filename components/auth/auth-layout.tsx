@@ -17,11 +17,9 @@ export function AuthLayout({
   subtitle,
   imagePosition = "left",
 }: AuthLayoutProps) {
-  // Menentukan arah animasi masuk (slide in) berdasarkan posisi layout
   const imageInitialX = imagePosition === "left" ? -50 : 50;
   const formInitialX = imagePosition === "left" ? 50 : -50;
 
-  // FIX: Type assertion explicitly defining the 4-number tuple for Framer Motion
   const customTransition: Transition = {
     duration: 0.6,
     ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
@@ -34,19 +32,24 @@ export function AuthLayout({
         initial={{ opacity: 0, x: imageInitialX }}
         animate={{ opacity: 1, x: 0 }}
         transition={customTransition}
-        className={`hidden lg:flex flex-col justify-between bg-slate-900 p-12 text-white relative overflow-hidden ${
+        className={`hidden lg:flex flex-col justify-between p-12 text-white relative overflow-hidden ${
           imagePosition === "right" ? "lg:order-2" : "lg:order-1"
         }`}
       >
-        {/* Placeholder for an abstract background image */}
-        <div className="absolute inset-0 bg-linear-to-br from-slate-800 to-slate-950 z-0" />
+        <img
+          src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000"
+          alt="Auth Background"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+
+        <div className="absolute inset-0 bg-slate-900/70 z-0" />
 
         <div className="relative z-10 flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 border border-white/20">
             <Building2 className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold tracking-tight">
-            DKPKP Jakarta
+            SIPANGAN KPKP
           </span>
         </div>
 
@@ -63,10 +66,9 @@ export function AuthLayout({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...customTransition, delay: 0.3 }}
-            className="text-slate-400 text-sm max-w-md leading-relaxed"
+            className="text-slate-200 text-sm max-w-md leading-relaxed"
           >
-            Kelola penyerapan dana alokasi internal, SPB, dan SPJ dengan
-            antarmuka yang modern, cepat, dan aman.
+            Kelola penyerapan dana alokasi internal, SPB, dan SPJ.
           </motion.p>
         </div>
       </motion.div>
@@ -87,7 +89,6 @@ export function AuthLayout({
             transition={{ ...customTransition, delay: 0.2 }}
             className="space-y-2"
           >
-            {/* Mobile Logo */}
             <div className="flex lg:hidden h-10 w-10 items-center justify-center rounded-lg bg-slate-900 mb-6">
               <Building2 className="h-5 w-5 text-white" />
             </div>
