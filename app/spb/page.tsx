@@ -10,6 +10,7 @@ import { SpbTable } from "@/components/spb/spb-table";
 import { SpbPrint } from "@/components/spb/spb-print";
 import { createClient } from "@/lib/supabase/client";
 import { SpbFormData, SpbLogItem, SupabaseSpbRow } from "@/types/spb";
+import { PageTransition } from "@/components/page-transition";
 
 export default function SpbPage() {
   const supabase = createClient();
@@ -90,35 +91,35 @@ export default function SpbPage() {
       alert(`Gagal menyimpan data: ${error.message}`);
     } else {
       alert("Data SPB berhasil disimpan ke database!");
-      fetchSpbLogs();
+      fetchSpbLogs(); // Memperbarui tabel rekap setelah berhasil simpan
     }
   };
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 print:p-0">
-      <div className="max-w-4xl mx-auto space-y-6 print:hidden">
-        <div className="flex justify-between items-center border-b pb-4">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
+      <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
+        <div className="flex justify-between items-center border-b border-slate-200 pb-4">
           <Button
             asChild
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="font-semibold px-2"
+            className="font-semibold h-9 px-4 bg-white"
           >
             <Link href="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" /> Kembali
+              <ArrowLeft className="h-4 w-4" /> Kembali ke Dashboard
             </Link>
           </Button>
         </div>
 
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border bg-white shadow-sm shrink-0">
-            <FileText className="h-6 w-6" />
+        <div className="flex items-center gap-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm shrink-0">
+            <FileText className="h-7 w-7" />
           </div>
-          <div className="space-y-0.5">
-            <h1 className="text-2xl font-extrabold tracking-tight">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">
               Surat Perintah Bayar (SPB)
             </h1>
-            <p className="text-xs text-muted-foreground font-medium">
+            <p className="text-sm text-slate-600 font-medium">
               Kelola penyerapan dana alokasi internal menggunakan form standar
               integrasi database.
             </p>
@@ -126,12 +127,18 @@ export default function SpbPage() {
         </div>
 
         <Tabs defaultValue="form-entry" className="w-full space-y-6">
-          <TabsList className="w-full grid grid-cols-2 h-12">
-            <TabsTrigger value="form-entry" className="text-xs font-bold gap-2">
-              <Plus className="h-4 w-4" /> FORM
+          <TabsList className="w-full grid grid-cols-2 h-14 bg-white border border-slate-200 p-1">
+            <TabsTrigger
+              value="form-entry"
+              className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
+            >
+              <Plus className="h-4 w-4" /> FORMULIR SPB
             </TabsTrigger>
-            <TabsTrigger value="recap-log" className="text-xs font-bold gap-2">
-              <Database className="h-4 w-4" /> TABEL REKAP
+            <TabsTrigger
+              value="recap-log"
+              className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
+            >
+              <Database className="h-4 w-4" /> TABEL REKAPITULASI
             </TabsTrigger>
           </TabsList>
 
@@ -149,7 +156,7 @@ export default function SpbPage() {
             <SpbTable logs={recaps} />
           </TabsContent>
         </Tabs>
-      </div>
+      </PageTransition>
 
       <SpbPrint data={formData} />
     </div>
