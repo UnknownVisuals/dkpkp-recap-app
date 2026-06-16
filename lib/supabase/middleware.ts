@@ -30,17 +30,26 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublicRoute = request.nextUrl.pathname.startsWith("/login");
+  // Daftarkan semua rute yang boleh diakses tanpa login
+  const isPublicRoute =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/signup") ||
+    request.nextUrl.pathname.startsWith("/auth"); // Mengizinkan /auth/callback
 
-  // ATURAN 1: Jika BELUM LOGIN dan mencoba membuka rute selain /login -> Lempar ke /login
+  // ATURAN 1: Jika BELUM LOGIN dan mencoba membuka rute selain public -> Lempar ke /login
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // ATURAN 2: Jika SUDAH LOGIN tapi mencoba membuka /login -> Lempar ke Dashboard (/)
-  if (user && isPublicRoute) {
+  // ATURAN 2: Jika SUDAH LOGIN tapi mencoba membuka halaman login/signup -> Lempar ke Dashboard (/)
+  // Note: Kita membiarkan user yang sudah login mengakses /auth/callback untuk memproses sesi
+  if (
+    user &&
+    (request.nextUrl.pathname.startsWith("/login") ||
+      request.nextUrl.pathname.startsWith("/signup"))
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
