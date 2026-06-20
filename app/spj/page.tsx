@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Database, FileText, AlertCircle } from "lucide-react";
@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { SpjFormData, SupabaseSpjRow } from "@/types/spj";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
-import { submitSpj } from "@/lib/actions/spj";
+import { submitSpj, updateSpj } from "@/lib/actions/spj";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-export default function SpjPage() {
+export default function SpjPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
+  const resolvedSearchParams = use(searchParams);
   const supabase = createClient();
   const { isAdmin } = useUser();
   const [recaps, setRecaps] = useState<SupabaseSpjRow[]>([]);
@@ -46,6 +51,30 @@ export default function SpjPage() {
     fetchSpjLogs();
     fetchApprovedSpbs();
   }, [supabase]);
+
+  useEffect(() => {
+    if (!resolvedSearchParams.edit) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("spj_recap")
+        .select("*")
+        .eq("no_spj", resolvedSearchParams.edit)
+        .single();
+
+      if (!error && data) {
+        const row = data as SupabaseSpjRow;
+        setFormData({
+          noSpj: row.no_spj,
+          relatedSpb: row.related_spb,
+          tanggal: row.tanggal,
+          realisasi: String(row.realisasi),
+          keterangan: row.keterangan,
+          namaPenerima: row.nama_penerima,
+          lampiranUrl: row.lampiran_url || "",
+        });
+      }
+    })();
+  }, [resolvedSearchParams.edit, supabase]);
 
   async function fetchSpjLogs() {
     const { data, error } = await supabase
@@ -77,7 +106,7 @@ export default function SpjPage() {
   const handleSaveSpj = async (lampiranUrl: string) => {
     setLoading(true);
 
-    const result = await submitSpj({
+    const payload = {
       no_spj: formData.noSpj,
       related_spb: formData.relatedSpb,
       tanggal: formData.tanggal,
@@ -85,7 +114,12 @@ export default function SpjPage() {
       keterangan: formData.keterangan,
       nama_penerima: formData.namaPenerima,
       lampiran_url: lampiranUrl || null,
-    });
+    };
+
+    const isEditing = !!resolvedSearchParams.edit;
+    const result = isEditing
+      ? await updateSpj(payload)
+      : await submitSpj(payload);
 
     setLoading(false);
 
@@ -100,6 +134,7 @@ export default function SpjPage() {
         lampiranUrl: "",
       });
       fetchSpjLogs();
+      window.history.replaceState(null, "", "/spj");
     } else if (
       "errorType" in result &&
       result.errorType === "INSUFFICIENT_FUNDS"
@@ -170,7 +205,11 @@ export default function SpjPage() {
           </TabsContent>
 
           <TabsContent value="recap-log" className="mt-0 focus-visible:ring-0">
-            <SpjTable logs={recaps} isAdmin={isAdmin} />
+            <SpjTable
+              logs={recaps}
+              isAdmin={isAdmin}
+              onRefresh={fetchSpjLogs}
+            />
           </TabsContent>
         </Tabs>
       </PageTransition>

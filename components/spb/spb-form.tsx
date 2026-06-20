@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SpbFormData } from "@/types/spb";
 import { uploadLampiran } from "@/lib/actions/storage";
+import { formatCurrency, stripCurrency } from "@/lib/format";
 import type { BudgetAccount } from "@/types/budget";
 
 interface SpbFormProps {
@@ -135,11 +136,12 @@ export function SpbForm({
                 </Label>
                 <Input
                   id="nominal"
-                  type="number"
-                  value={formData.nominal}
-                  onChange={(e) => onChange("nominal", e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatCurrency(formData.nominal)}
+                  onChange={(e) => onChange("nominal", stripCurrency(e.target.value))}
                   disabled={isBusy}
-                  placeholder="Cth: 2500000"
+                  placeholder="Cth: 2.500.000"
                   className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
                 {errors.nominal && (
@@ -361,7 +363,7 @@ export function SpbForm({
 
           <div className="space-y-2">
             <Label htmlFor="lampiran" className="text-xs font-bold">
-              Lampiran Dokumen (PDF/Gambar)
+              Lampiran Dokumen (PDF/Gambar, Maks. 5MB)
             </Label>
             <div className="flex items-center gap-3">
               <Input

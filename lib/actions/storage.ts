@@ -13,6 +13,13 @@ export async function uploadLampiran(formData: FormData) {
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file provided");
 
+  if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+    throw new Error("Only image and PDF files are allowed");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("File size exceeds 5MB limit");
+  }
+
   const ext = file.name.split(".").pop();
   const filePath = `${user.id}/${Date.now()}.${ext}`;
 

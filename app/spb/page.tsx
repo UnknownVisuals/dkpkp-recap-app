@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
@@ -12,10 +12,15 @@ import { createClient } from "@/lib/supabase/client";
 import { SpbFormData, SupabaseSpbRow } from "@/types/spb";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
-import { submitSpb } from "@/lib/actions/spb";
+import { submitSpb, updateSpb } from "@/lib/actions/spb";
 import type { BudgetAccount } from "@/types/budget";
 
-export default function SpbPage() {
+export default function SpbPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
+  const resolvedSearchParams = use(searchParams);
   const supabase = createClient();
   const { isAdmin } = useUser();
   const [recaps, setRecaps] = useState<SupabaseSpbRow[]>([]);
@@ -46,6 +51,39 @@ export default function SpbPage() {
     fetchBudgetAccounts();
   }, [supabase]);
 
+  useEffect(() => {
+    if (!resolvedSearchParams.edit) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("spb_recap")
+        .select("*")
+        .eq("no_spb", resolvedSearchParams.edit)
+        .single();
+
+      if (!error && data) {
+        const row = data as SupabaseSpbRow;
+        setFormData({
+          noSpb: row.no_spb,
+          tanggal: row.tanggal,
+          nominal: String(row.nominal),
+          terbilang: row.terbilang,
+          kepada: row.kepada,
+          untukPembayaran: row.untuk_pembayaran,
+          atasDasar: row.atas_dasar,
+          dibebankanPada: row.dibebankan_pada || "",
+          kegiatan: row.kegiatan,
+          subKegiatan: row.sub_kegiatan,
+          kodeRekening: row.kode_rekening,
+          namaPptk: row.nama_pptk,
+          nipPptk: row.nip_pptk,
+          namaPpk: row.nama_ppk,
+          nipPpk: row.nip_ppk,
+          lampiranUrl: row.lampiran_url || "",
+        });
+      }
+    })();
+  }, [resolvedSearchParams.edit, supabase]);
+
   async function fetchSpbLogs() {
     const { data, error } = await supabase
       .from("spb_recap")
@@ -75,7 +113,7 @@ export default function SpbPage() {
   const handleSaveSpb = async (lampiranUrl: string) => {
     setLoading(true);
 
-    const result = await submitSpb({
+    const payload = {
       no_spb: formData.noSpb,
       tanggal: formData.tanggal,
       nominal: Number(formData.nominal),
@@ -92,7 +130,12 @@ export default function SpbPage() {
       nama_ppk: formData.namaPpk,
       nip_ppk: formData.nipPpk,
       lampiran_url: lampiranUrl || null,
-    });
+    };
+
+    const isEditing = !!resolvedSearchParams.edit;
+    const result = isEditing
+      ? await updateSpb(payload)
+      : await submitSpb(payload);
 
     setLoading(false);
 
@@ -116,6 +159,7 @@ export default function SpbPage() {
         lampiranUrl: "",
       });
       fetchSpbLogs();
+      window.history.replaceState(null, "", "/spb");
     } else {
       alert(`Gagal menyimpan SPB: ${result.error}`);
     }
@@ -181,7 +225,11 @@ export default function SpbPage() {
           </TabsContent>
 
           <TabsContent value="recap-log" className="mt-0 focus-visible:ring-0">
-            <SpbTable logs={recaps} isAdmin={isAdmin} />
+            <SpbTable
+              logs={recaps}
+              isAdmin={isAdmin}
+              onRefresh={fetchSpbLogs}
+            />
           </TabsContent>
         </Tabs>
       </PageTransition>

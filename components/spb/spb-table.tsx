@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, CheckCircle2, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ExternalLink, CheckCircle2, XCircle, Loader2, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ import type { SupabaseSpbRow, SpbStatus } from "@/types/spb";
 interface SpbTableProps {
   logs: SupabaseSpbRow[];
   isAdmin: boolean;
+  onRefresh?: () => void;
 }
 
 const statusVariant: Record<SpbStatus, "secondary" | "default" | "destructive"> =
@@ -49,28 +51,39 @@ const statusLabel: Record<SpbStatus, string> = {
   REJECTED: "Rejected",
 };
 
-export function SpbTable({ logs, isAdmin }: SpbTableProps) {
+export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
+  const router = useRouter();
   const [rejectTarget, setRejectTarget] = useState<{
     type: "spj" | "spb";
     id: string;
   } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleApprove = async (type: "spj" | "spb", id: string) => {
+    setLoadingId(id);
     const result = await approveDocument(type, id);
-    if (!result.success) alert(result.error);
+    setLoadingId(null);
+    if (result.success) {
+      onRefresh?.();
+    } else {
+      alert(result.error);
+    }
   };
 
   const handleReject = async () => {
     if (!rejectTarget) return;
+    setLoadingId(rejectTarget.id);
     const result = await rejectDocument(
       rejectTarget.type,
       rejectTarget.id,
       rejectReason,
     );
+    setLoadingId(null);
     if (result.success) {
       setRejectTarget(null);
       setRejectReason("");
+      onRefresh?.();
     } else {
       alert(result.error);
     }
@@ -91,16 +104,14 @@ export function SpbTable({ logs, isAdmin }: SpbTableProps) {
               </TableHead>
               <TableHead className="font-bold w-24 h-12 px-4">Status</TableHead>
               <TableHead className="font-bold w-20 h-12 px-4">File</TableHead>
-              {isAdmin && (
-                <TableHead className="font-bold w-36 h-12 px-4">Aksi</TableHead>
-              )}
+              <TableHead className="font-bold w-36 h-12 px-4">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-xs leading-normal">
             {logs.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={isAdmin ? 8 : 7}
+                  colSpan={8}
                   className="text-center py-12 text-muted-foreground"
                 >
                   Belum ada data rekapitulasi SPB di database.
@@ -177,8 +188,8 @@ export function SpbTable({ logs, isAdmin }: SpbTableProps) {
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  {isAdmin && (
-                    <TableCell className="py-3.5 px-4">
+                  <TableCell className="py-3.5 px-4">
+                    {isAdmin ? (
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
@@ -187,9 +198,14 @@ export function SpbTable({ logs, isAdmin }: SpbTableProps) {
                           onClick={() =>
                             handleApprove("spb", item.no_spb)
                           }
+                          disabled={loadingId !== null}
                           title="Setujui"
                         >
-                          <CheckCircle2 className="h-4 w-4" />
+                          {loadingId === item.no_spb ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"
@@ -198,13 +214,26 @@ export function SpbTable({ logs, isAdmin }: SpbTableProps) {
                           onClick={() =>
                             setRejectTarget({ type: "spb", id: item.no_spb })
                           }
+                          disabled={loadingId !== null}
                           title="Tolak"
                         >
                           <XCircle className="h-4 w-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                  )}
+                    ) : item.status === "REJECTED" ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        onClick={() => router.push(`/spb?edit=${encodeURIComponent(item.no_spb)}`)}
+                        title="Perbaiki Dokumen"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             )}

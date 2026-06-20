@@ -30,6 +30,7 @@ export interface SupabaseSpjRow {
   related_spb: string;
   tanggal: string;
   realisasi: number;
+  keterangan: string;
   nama_penerima: string;
   status: SpjStatus;
   created_by: string;

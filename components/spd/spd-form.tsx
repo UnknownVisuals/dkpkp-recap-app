@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import type { SpdFormData } from "@/types/spd";
 import type { BudgetAccount } from "@/types/budget";
+import { formatCurrency, stripCurrency } from "@/lib/format";
 
 interface SpdFormProps {
   formData: SpdFormData;
@@ -135,11 +136,12 @@ export function SpdForm({
               </Label>
               <Input
                 id="nominal"
-                type="number"
-                value={formData.nominal}
-                onChange={(e) => onChange("nominal", e.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatCurrency(formData.nominal)}
+                onChange={(e) => onChange("nominal", stripCurrency(e.target.value))}
                 disabled={isLoading}
-                placeholder="Cth: 50000000"
+                placeholder="Cth: 50.000.000"
                 className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.nominal && (

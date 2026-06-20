@@ -46,9 +46,19 @@ export interface SpbRow {
 export interface SupabaseSpbRow {
   no_spb: string;
   tanggal: string;
-  kepada: string;
   nominal: number;
+  terbilang: string;
+  kepada: string;
+  untuk_pembayaran: string;
+  atas_dasar: string;
+  dibebankan_pada: string | null;
   kegiatan: string;
+  sub_kegiatan: string;
+  kode_rekening: string;
+  nama_pptk: string;
+  nip_pptk: string;
+  nama_ppk: string;
+  nip_ppk: string;
   status: SpbStatus;
   created_by: string;
   created_at: string;

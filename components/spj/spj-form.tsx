@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SpjFormData } from "@/types/spj";
 import { uploadLampiran } from "@/lib/actions/storage";
+import { formatCurrency, stripCurrency } from "@/lib/format";
 
 interface SpjFormProps {
   formData: SpjFormData;
@@ -155,11 +156,12 @@ export function SpjForm({
               </Label>
               <Input
                 id="realisasi"
-                type="number"
-                value={formData.realisasi}
-                onChange={(e) => onChange("realisasi", e.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatCurrency(formData.realisasi)}
+                onChange={(e) => onChange("realisasi", stripCurrency(e.target.value))}
                 disabled={isLoading || uploading}
-                placeholder="Cth: 2450000"
+                placeholder="Cth: 2.450.000"
                 className={`h-10 text-sm ${errors.realisasi ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.realisasi && (
@@ -211,7 +213,7 @@ export function SpjForm({
 
           <div className="space-y-2">
             <Label htmlFor="lampiran" className="text-xs font-bold">
-              Berita Acara / Kwitansi (PDF/Gambar)
+              Berita Acara / Kwitansi (PDF/Gambar, Maks. 5MB)
             </Label>
             <div className="flex items-center gap-3">
               <Input
