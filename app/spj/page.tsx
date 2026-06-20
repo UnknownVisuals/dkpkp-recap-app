@@ -2,22 +2,16 @@
 
 import { use, useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Database, FileText, AlertCircle } from "lucide-react";
+import { Plus, Database, FileText } from "lucide-react";
 import { SpjForm } from "@/components/spj/spj-form";
 import { SpjTable } from "@/components/spj/spj-table";
 import { SpjPrint } from "@/components/spj/spj-print";
+import { ErrorDialog } from "@/components/ui/error-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
 import { useSpj } from "@/hooks/useSpj";
 import { submitSpj, updateSpj } from "@/lib/actions/spj";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 export default function SpjPage({
   searchParams,
@@ -36,8 +30,9 @@ export default function SpjPage({
   } = useSpj();
   const [errorDialog, setErrorDialog] = useState<{
     open: boolean;
+    title: string;
     message: string;
-  }>({ open: false, message: "" });
+  }>({ open: false, title: "", message: "" });
 
   const [formData, setFormData] = useState({
     noSpj: "",
@@ -106,9 +101,17 @@ export default function SpjPage({
       "errorType" in result &&
       result.errorType === "INSUFFICIENT_FUNDS"
     ) {
-      setErrorDialog({ open: true, message: result.message });
+      setErrorDialog({
+        open: true,
+        title: "Saldo Tidak Mencukupi",
+        message: result.message,
+      });
     } else {
-      alert(`Gagal menyimpan SPJ: ${result.error}`);
+      setErrorDialog({
+        open: true,
+        title: "Gagal Menyimpan SPJ",
+        message: result.error ?? "Terjadi kesalahan",
+      });
     }
   };
 
@@ -160,24 +163,12 @@ export default function SpjPage({
 
       <SpjPrint data={formData} />
 
-      <Dialog
+      <ErrorDialog
         open={errorDialog.open}
         onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-6 w-6 text-destructive shrink-0" />
-              <DialogTitle className="text-destructive">
-                Saldo Tidak Mencukupi
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-base pt-3">
-              {errorDialog.message}
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+        title={errorDialog.title}
+        message={errorDialog.message}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Plus, Database, FileText } from "lucide-react";
 import { SpbForm } from "@/components/spb/spb-form";
 import { SpbTable } from "@/components/spb/spb-table";
 import { SpbPrint } from "@/components/spb/spb-print";
+import { ErrorDialog } from "@/components/ui/error-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
@@ -28,6 +29,10 @@ export default function SpbPage({
     fetchSpbLogs,
     fetchSpbForEdit,
   } = useSpb();
+  const [errorDialog, setErrorDialog] = useState<{
+    open: boolean;
+    message: string;
+  }>({ open: false, message: "" });
   const [formData, setFormData] = useState<SpbFormData>({
     noSpb: "",
     tanggal: "",
@@ -128,7 +133,7 @@ export default function SpbPage({
       fetchSpbLogs();
       window.history.replaceState(null, "", "/spb");
     } else {
-      alert(`Gagal menyimpan SPB: ${result.error}`);
+      setErrorDialog({ open: true, message: result.error ?? "Gagal menyimpan SPB" });
     }
   };
 
@@ -179,6 +184,13 @@ export default function SpbPage({
       </PageTransition>
 
       <SpbPrint data={formData} />
+
+      <ErrorDialog
+        open={errorDialog.open}
+        onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
+        title="Gagal Menyimpan SPB"
+        message={errorDialog.message}
+      />
     </div>
   );
 }

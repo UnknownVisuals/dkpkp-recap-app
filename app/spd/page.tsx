@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Database, PiggyBank } from "lucide-react";
 import { SpdForm } from "@/components/spd/spd-form";
 import { SpdTable } from "@/components/spd/spd-table";
+import { ErrorDialog } from "@/components/ui/error-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { useSpd } from "@/hooks/useSpd";
@@ -14,6 +15,11 @@ import type { SpdFormData } from "@/types/spd";
 export default function SpdPage() {
   const { recaps, budgetAccounts, loading, setLoading, fetchSpdLogs } =
     useSpd();
+
+  const [errorDialog, setErrorDialog] = useState<{
+    open: boolean;
+    message: string;
+  }>({ open: false, message: "" });
 
   const [formData, setFormData] = useState<SpdFormData>({
     noSpd: "",
@@ -47,7 +53,7 @@ export default function SpdPage() {
       });
       fetchSpdLogs();
     } else {
-      alert(`Gagal menyimpan SPD: ${result.error}`);
+      setErrorDialog({ open: true, message: result.error ?? "Gagal menyimpan SPD" });
     }
   };
 
@@ -91,6 +97,13 @@ export default function SpdPage() {
           </TabsContent>
         </Tabs>
       </PageTransition>
+
+      <ErrorDialog
+        open={errorDialog.open}
+        onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
+        title="Gagal Menyimpan SPD"
+        message={errorDialog.message}
+      />
     </div>
   );
 }

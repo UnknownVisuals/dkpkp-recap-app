@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ErrorDialog } from "@/components/ui/error-dialog";
 import { RejectDialog } from "@/components/spb/reject-dialog";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
 import type { SupabaseSpbRow, SpbStatus } from "@/types/spb";
@@ -58,6 +59,10 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
   } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [errorDialog, setErrorDialog] = useState<{
+    open: boolean;
+    message: string;
+  }>({ open: false, message: "" });
 
   const handleApprove = async (type: "spj" | "spb", id: string) => {
     setLoadingId(id);
@@ -66,7 +71,7 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
     if (result.success) {
       onRefresh?.();
     } else {
-      alert(result.error);
+      setErrorDialog({ open: true, message: result.error ?? "Terjadi kesalahan" });
     }
   };
 
@@ -84,7 +89,7 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
       setRejectReason("");
       onRefresh?.();
     } else {
-      alert(result.error);
+      setErrorDialog({ open: true, message: result.error ?? "Terjadi kesalahan" });
     }
   };
 
@@ -259,6 +264,13 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
         onReasonChange={setRejectReason}
         onConfirm={handleReject}
         isLoading={loadingId !== null}
+      />
+
+      <ErrorDialog
+        open={errorDialog.open}
+        onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
+        title="Gagal Memproses"
+        message={errorDialog.message}
       />
     </TooltipProvider>
   );
