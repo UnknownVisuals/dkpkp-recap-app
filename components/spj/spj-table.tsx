@@ -20,18 +20,24 @@ interface SpjTableProps {
 
 export function SpjTable({ logs }: SpjTableProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <TooltipProvider>
         <Table className="min-w-175">
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold w-35">No. SPJ</TableHead>
-              <TableHead className="font-bold w-37.5">
+              <TableHead className="font-bold w-35 h-12 px-4">
+                No. SPJ
+              </TableHead>
+              <TableHead className="font-bold w-37.5 h-12 px-4">
                 No. SPB Terkait
               </TableHead>
-              <TableHead className="font-bold w-27.5">Tanggal</TableHead>
-              <TableHead className="font-bold">Total Realisasi</TableHead>
-              <TableHead className="font-bold text-right w-40">
+              <TableHead className="font-bold w-27.5 h-12 px-4">
+                Tanggal
+              </TableHead>
+              <TableHead className="font-bold h-12 px-4">
+                Total Realisasi
+              </TableHead>
+              <TableHead className="font-bold text-right w-60 h-12 px-4">
                 Penerima Dana
               </TableHead>
             </TableRow>
@@ -41,7 +47,7 @@ export function SpjTable({ logs }: SpjTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="text-center py-8 text-muted-foreground"
+                  className="text-center py-12 text-muted-foreground"
                 >
                   Belum ada data rekapitulasi SPJ di database.
                 </TableCell>
@@ -49,7 +55,7 @@ export function SpjTable({ logs }: SpjTableProps) {
             ) : (
               logs.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-bold font-mono max-w-35">
+                  <TableCell className="font-bold font-mono max-w-35 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.id}</span>
@@ -59,7 +65,7 @@ export function SpjTable({ logs }: SpjTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground font-mono max-w-37.5">
+                  <TableCell className="text-muted-foreground font-mono max-w-37.5 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">
@@ -71,13 +77,13 @@ export function SpjTable({ logs }: SpjTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground whitespace-nowrap">
+                  <TableCell className="text-muted-foreground whitespace-nowrap py-3.5 px-4">
                     {item.date}
                   </TableCell>
-                  <TableCell className="font-bold whitespace-nowrap">
+                  <TableCell className="font-bold whitespace-nowrap py-3.5 px-4">
                     {item.realization}
                   </TableCell>
-                  <TableCell className="text-right font-medium max-w-40">
+                  <TableCell className="text-right font-medium max-w-40 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.recipient}</span>

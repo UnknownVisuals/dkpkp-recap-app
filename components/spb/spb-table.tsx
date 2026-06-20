@@ -25,16 +25,16 @@ interface SpbTableProps {
 
 export function SpbTable({ logs }: SpbTableProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <TooltipProvider>
         <Table className="min-w-175">
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold w-35">No. SPB</TableHead>
-              <TableHead className="font-bold w-27.5">Tanggal</TableHead>
-              <TableHead className="font-bold w-40">Kepada</TableHead>
-              <TableHead className="font-bold">Kegiatan</TableHead>
-              <TableHead className="font-bold text-right w-30">
+              <TableHead className="font-bold w-35 h-12 px-4">No. SPB</TableHead>
+              <TableHead className="font-bold w-27.5 h-12 px-4">Tanggal</TableHead>
+              <TableHead className="font-bold w-40 h-12 px-4">Kepada</TableHead>
+              <TableHead className="font-bold h-12 px-4">Kegiatan</TableHead>
+              <TableHead className="font-bold text-right w-30 h-12 px-4">
                 Nominal
               </TableHead>
             </TableRow>
@@ -44,7 +44,7 @@ export function SpbTable({ logs }: SpbTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="text-center py-8 text-muted-foreground"
+                  className="text-center py-12 text-muted-foreground"
                 >
                   Belum ada data rekapitulasi SPB di database.
                 </TableCell>
@@ -52,7 +52,7 @@ export function SpbTable({ logs }: SpbTableProps) {
             ) : (
               logs.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-bold font-mono max-w-35">
+                  <TableCell className="font-bold font-mono max-w-35 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.id}</span>
@@ -62,10 +62,10 @@ export function SpbTable({ logs }: SpbTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground whitespace-nowrap">
+                  <TableCell className="text-muted-foreground whitespace-nowrap py-3.5 px-4">
                     {item.date}
                   </TableCell>
-                  <TableCell className="font-semibold max-w-40">
+                  <TableCell className="font-semibold max-w-40 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.recipient}</span>
@@ -75,10 +75,10 @@ export function SpbTable({ logs }: SpbTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground wrap-break-word whitespace-normal min-w-30">
+                  <TableCell className="text-muted-foreground wrap-break-word whitespace-normal min-w-30 py-3.5 px-4">
                     {item.activity}
                   </TableCell>
-                  <TableCell className="font-bold text-right whitespace-nowrap text-sm">
+                  <TableCell className="font-bold text-right whitespace-nowrap text-sm py-3.5 px-4">
                     {item.amount}
                   </TableCell>
                 </TableRow>
