@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { Building2 } from "lucide-react";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,12 +15,14 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-slate-900" />
-            <span className="font-black text-xl tracking-tight text-slate-900">
-              SIPANGAN KPKP
-            </span>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="SIPANGAN KPKP"
+            height={36}
+            width={81}
+            className="object-contain"
+            priority
+          />
           <DashboardHeader />
         </div>
       </header>

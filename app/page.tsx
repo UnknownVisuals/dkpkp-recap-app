@@ -27,7 +27,7 @@ export default function HomePage() {
           <motion.div variants={itemVariants}>
             <ModuleCard
               title="Surat Perintah Bayar (SPB)"
-              description="Pusat pengelolaan formulir perintah pembayaran internal dinas beserta rekapitulasi data anggaran."
+              description="Complete management of internal payment order forms with budget data recapitulation."
               href="/spb"
               imageUrl="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
             />
@@ -36,7 +36,7 @@ export default function HomePage() {
           <motion.div variants={itemVariants}>
             <ModuleCard
               title="Surat Pertanggungjawaban (SPJ)"
-              description="Pencatatan realisasi dana anggaran belanja dinas disertai pengarsipan bukti kwitansi fisik."
+              description="Track departmental budget realization with physical receipt documentation archiving."
               href="/spj"
               imageUrl="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800"
             />

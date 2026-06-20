@@ -18,12 +18,12 @@ export default function SpjPage() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<SpjFormData>({
-    noSpj: "120 / SPJ / DKPKP / 2026",
-    relatedSpb: "719 / 28.26 / Y",
-    tanggal: "2026-04-30",
-    realisasi: "2450000",
-    keterangan: "Pembayaran Honorarium Transaksi Satgas Lapangan Terlampir",
-    namaPenerima: "Koordinator Lapangan TNI/Polri",
+    noSpj: "",
+    relatedSpb: "",
+    tanggal: "",
+    realisasi: "",
+    keterangan: "",
+    namaPenerima: "",
   });
 
   const fetchSpjLogs = useCallback(async () => {
@@ -69,9 +69,9 @@ export default function SpjPage() {
 
     setLoading(false);
     if (error) {
-      alert(`Gagal menyimpan data SPJ: ${error.message}`);
+      alert(`Failed to save SPJ data: ${error.message}`);
     } else {
-      alert("Data SPJ berhasil dikunci ke database!");
+      alert("SPJ data saved successfully!");
       fetchSpjLogs();
     }
   };
@@ -88,7 +88,8 @@ export default function SpjPage() {
             className="font-semibold h-9 px-4 bg-white"
           >
             <Link href="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" /> Kembali ke Dashboard
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
             </Link>
           </Button>
         </div>
@@ -103,8 +104,8 @@ export default function SpjPage() {
               Surat Pertanggungjawaban (SPJ)
             </h1>
             <p className="text-sm text-slate-600 font-medium">
-              Kelola pencatatan realisasi belanja dinas dan verifikasi keabsahan
-              bukti pembayaran fisik.
+              Manage expenditure realization recording and physical payment
+              receipt verification.
             </p>
           </div>
         </div>
@@ -116,13 +117,13 @@ export default function SpjPage() {
               value="form-entry"
               className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
             >
-              <Plus className="h-4 w-4" /> FORMULIR SPJ
+              <Plus className="h-4 w-4" /> SPJ FORM
             </TabsTrigger>
             <TabsTrigger
               value="recap-log"
               className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
             >
-              <Database className="h-4 w-4" /> TABEL REKAPITULASI
+              <Database className="h-4 w-4" /> RECAP TABLE
             </TabsTrigger>
           </TabsList>
 

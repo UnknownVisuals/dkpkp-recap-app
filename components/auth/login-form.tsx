@@ -29,7 +29,7 @@ export function LoginForm() {
     });
 
     if (authError) {
-      setError("Email atau kata sandi tidak valid.");
+      setError("Invalid email or password.");
       setLoading(false);
     } else {
       router.push("/");
@@ -41,7 +41,7 @@ export function LoginForm() {
     <div className="space-y-6">
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium">
+          <Label htmlFor="email" className="text-xs font-bold">
             Email
           </Label>
           <Input
@@ -51,13 +51,13 @@ export function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
             required
-            className="h-11"
+            className="h-10 text-sm"
             placeholder="Enter your email"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-sm font-medium">
+          <Label htmlFor="password" className="text-xs font-bold">
             Password
           </Label>
           <Input
@@ -67,16 +67,16 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
             required
-            className="h-11"
+            className="h-10 text-sm"
             placeholder="••••••••"
           />
         </div>
 
         {error && (
-          <p className="text-sm font-medium text-destructive">{error}</p>
+          <p className="text-xs font-medium text-destructive">{error}</p>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full h-11">
+        <Button type="submit" disabled={loading} size="lg" className="w-full">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
         </Button>
       </form>

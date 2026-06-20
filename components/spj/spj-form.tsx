@@ -1,18 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { SpjFormData } from "@/types/spj";
 
 interface SpjFormProps {
@@ -59,17 +53,18 @@ export function SpjForm({
   };
 
   return (
-    <Card>
-      <CardHeader className="border-b">
-        <CardTitle className="text-base font-bold">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+      <div className="border-b border-slate-200 px-8 py-5">
+        <h3 className="text-base font-black tracking-tight text-slate-900">
           Laporan Penyusunan Dokumen SPJ
-        </CardTitle>
-        <CardDescription className="text-xs">
+        </h3>
+        <p className="text-xs text-slate-500 font-medium mt-0.5">
           Catat nilai transaksi riil penyerapan dana untuk memvalidasi perintah
           bayar terkait.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-8 space-y-6">
+        </p>
+      </div>
+
+      <div className="p-8">
         <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
@@ -81,10 +76,11 @@ export function SpjForm({
                 value={formData.noSpj}
                 onChange={(e) => onChange("noSpj", e.target.value)}
                 disabled={isLoading}
+                placeholder="Cth: 120 / SPJ / DKPKP / 2026"
                 className={`h-10 text-sm ${errors.noSpj ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.noSpj && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p className="text-xs font-medium text-destructive">
                   {errors.noSpj}
                 </p>
               )}
@@ -99,10 +95,11 @@ export function SpjForm({
                 value={formData.relatedSpb}
                 onChange={(e) => onChange("relatedSpb", e.target.value)}
                 disabled={isLoading}
+                placeholder="Cth: 719 / 28.26 / Y"
                 className={`h-10 text-sm font-mono ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.relatedSpb && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p className="text-xs font-medium text-destructive">
                   {errors.relatedSpb}
                 </p>
               )}
@@ -114,16 +111,15 @@ export function SpjForm({
               <Label htmlFor="tanggal" className="text-xs font-bold">
                 Tanggal Pengajuan SPJ
               </Label>
-              <Input
-                id="tanggal"
-                type="date"
+              <DatePicker
                 value={formData.tanggal}
-                onChange={(e) => onChange("tanggal", e.target.value)}
+                onChange={(value) => onChange("tanggal", value)}
                 disabled={isLoading}
-                className={`h-10 text-sm ${errors.tanggal ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                placeholder="Pilih tanggal pengajuan"
+                error={!!errors.tanggal}
               />
               {errors.tanggal && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p className="text-xs font-medium text-destructive">
                   {errors.tanggal}
                 </p>
               )}
@@ -139,10 +135,11 @@ export function SpjForm({
                 value={formData.realisasi}
                 onChange={(e) => onChange("realisasi", e.target.value)}
                 disabled={isLoading}
+                placeholder="Cth: 2450000"
                 className={`h-10 text-sm ${errors.realisasi ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.realisasi && (
-                <p className="text-[11px] font-medium text-destructive">
+                <p className="text-xs font-medium text-destructive">
                   {errors.realisasi}
                 </p>
               )}
@@ -153,15 +150,16 @@ export function SpjForm({
             <Label htmlFor="namaPenerima" className="text-xs font-bold">
               Pihak Penerima Dana Anggaran Belanja
             </Label>
-            <Input
-              id="namaPenerima"
-              value={formData.namaPenerima}
-              onChange={(e) => onChange("namaPenerima", e.target.value)}
-              disabled={isLoading}
-              className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
-            />
+              <Input
+                id="namaPenerima"
+                value={formData.namaPenerima}
+                onChange={(e) => onChange("namaPenerima", e.target.value)}
+                disabled={isLoading}
+                placeholder="Cth: Koordinator Lapangan TNI/Polri"
+                className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
             {errors.namaPenerima && (
-              <p className="text-[11px] font-medium text-destructive">
+              <p className="text-xs font-medium text-destructive">
                 {errors.namaPenerima}
               </p>
             )}
@@ -177,18 +175,17 @@ export function SpjForm({
               onChange={(e) => onChange("keterangan", e.target.value)}
               disabled={isLoading}
               rows={3}
+                  placeholder="Cth: Pembayaran Honorarium Transaksi Satgas Lapangan Terlampir"
               className={`resize-none text-sm ${errors.keterangan ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
             {errors.keterangan && (
-              <p className="text-[11px] font-medium text-destructive">
+              <p className="text-xs font-medium text-destructive">
                 {errors.keterangan}
               </p>
             )}
           </div>
 
-          <Separator />
-
-          <div className="pt-4 flex justify-end gap-3">
+          <div className="pt-2 flex justify-end gap-3">
             <Button
               type="button"
               onClick={onPrint}
@@ -207,11 +204,11 @@ export function SpjForm({
               size="lg"
               className="font-semibold text-sm px-6"
             >
-              {isLoading ? "Menyimpan..." : "Simpan"}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Simpan"}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

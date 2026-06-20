@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Building2 } from "lucide-react";
+import Image from "next/image";
 import { motion, Transition } from "framer-motion";
 
 interface AuthLayoutProps {
@@ -36,31 +36,41 @@ export function AuthLayout({
           imagePosition === "right" ? "lg:order-2" : "lg:order-1"
         }`}
       >
-        <img
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000"
+        {/* Background Image */}
+        <Image
+          src="/auth-background.jpg"
           alt="Auth Background"
-          className="absolute inset-0 w-full h-full object-cover z-0"
+          fill
+          sizes="50vw"
+          className="object-cover z-0"
+          priority
         />
 
+        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-slate-900/70 z-0" />
 
+        {/* Logo (Top Left) */}
         <div className="relative z-10 flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 border border-white/20">
-            <Building2 className="h-5 w-5 text-white" />
+          <div className="relative h-24 w-48">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            SIPANGAN KPKP
-          </span>
         </div>
 
+        {/* Footer Text (Bottom Left) */}
         <div className="relative z-10">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...customTransition, delay: 0.2 }}
-            className="text-3xl font-medium tracking-tight mb-4"
+            className="text-3xl font-bold tracking-tight mb-4"
           >
-            Sistem E-Recap Terpadu
+            Sistem Informasi Pengajuan dan Administrasi Keuangan
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -68,7 +78,8 @@ export function AuthLayout({
             transition={{ ...customTransition, delay: 0.3 }}
             className="text-slate-200 text-sm max-w-md leading-relaxed"
           >
-            Kelola penyerapan dana alokasi internal, SPB, dan SPJ.
+            Dinas Ketahanan Pangan, Kelautan dan Pertanian Provinsi DKI
+            Jakarta.
           </motion.p>
         </div>
       </motion.div>
@@ -90,7 +101,13 @@ export function AuthLayout({
             className="space-y-2"
           >
             <div className="flex lg:hidden h-10 w-10 items-center justify-center rounded-lg bg-slate-900 mb-6">
-              <Building2 className="h-5 w-5 text-white" />
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                height={20}
+                width={45}
+                className="object-contain"
+              />
             </div>
             <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
             <p className="text-sm text-slate-500">{subtitle}</p>

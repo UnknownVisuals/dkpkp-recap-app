@@ -18,22 +18,21 @@ export default function SpbPage() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState<SpbFormData>({
-    noSpb: "719 / 28.26 / Y",
-    tanggal: "2026-04-27",
-    nominal: "2500000",
-    terbilang: "Dua Juta Lima Ratus Ribu Rupiah",
-    kepada: "Daftar Nama Terlampir",
-    untukPembayaran: "Honorarium Tim Anggota TNI/Polri",
+    noSpb: "",
+    tanggal: "",
+    nominal: "",
+    terbilang: "",
+    kepada: "",
+    untukPembayaran: "",
     atasDasar: "Kwitansi/ Dokumen SPJ",
     dibebankanPada: "",
-    kegiatan:
-      "Pelaksanaan Pengawasan Keamanan Pangan Segar Distribusi Lintas Daerah",
-    subKegiatan: "2.09.05.1.01.0008",
-    kodeRekening: "5.1.02.02.01.00004",
-    namaPptk: "Solihin",
-    nipPptk: "197206051998031010",
-    namaPpk: "Lya Imbasari",
-    nipPpk: "196907071999032003",
+    kegiatan: "",
+    subKegiatan: "",
+    kodeRekening: "",
+    namaPptk: "",
+    nipPptk: "",
+    namaPpk: "",
+    nipPpk: "",
   });
 
   const fetchSpbLogs = useCallback(async () => {
@@ -88,10 +87,10 @@ export default function SpbPage() {
 
     setLoading(false);
     if (error) {
-      alert(`Gagal menyimpan data: ${error.message}`);
+      alert(`Failed to save SPB data: ${error.message}`);
     } else {
-      alert("Data SPB berhasil disimpan ke database!");
-      fetchSpbLogs(); // Memperbarui tabel rekap setelah berhasil simpan
+      alert("SPB data saved successfully!");
+      fetchSpbLogs(); // Refresh recap table after save
     }
   };
 
@@ -106,7 +105,8 @@ export default function SpbPage() {
             className="font-semibold h-9 px-4 bg-white"
           >
             <Link href="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" /> Kembali ke Dashboard
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
             </Link>
           </Button>
         </div>
@@ -120,8 +120,8 @@ export default function SpbPage() {
               Surat Perintah Bayar (SPB)
             </h1>
             <p className="text-sm text-slate-600 font-medium">
-              Kelola penyerapan dana alokasi internal menggunakan form standar
-              integrasi database.
+              Manage internal budget allocation absorption with standard
+              database-integrated forms.
             </p>
           </div>
         </div>
@@ -132,13 +132,13 @@ export default function SpbPage() {
               value="form-entry"
               className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
             >
-              <Plus className="h-4 w-4" /> FORMULIR SPB
+              <Plus className="h-4 w-4" /> SPB FORM
             </TabsTrigger>
             <TabsTrigger
               value="recap-log"
               className="text-sm font-bold gap-2 h-full data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all"
             >
-              <Database className="h-4 w-4" /> TABEL REKAPITULASI
+              <Database className="h-4 w-4" /> RECAP TABLE
             </TabsTrigger>
           </TabsList>
 
