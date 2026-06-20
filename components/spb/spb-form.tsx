@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -399,11 +399,7 @@ export function SpbForm({
               size="lg"
               className="font-semibold text-sm px-6"
             >
-              {isBusy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Simpan"
-              )}
+              {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Simpan"}
             </Button>
           </div>
         </form>

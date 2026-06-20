@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Database, FileText, AlertCircle } from "lucide-react";
@@ -42,7 +42,12 @@ export default function SpjPage() {
     lampiranUrl: "",
   });
 
-  const fetchSpjLogs = useCallback(async () => {
+  useEffect(() => {
+    fetchSpjLogs();
+    fetchApprovedSpbs();
+  }, [supabase]);
+
+  async function fetchSpjLogs() {
     const { data, error } = await supabase
       .from("spj_recap")
       .select("*")
@@ -51,9 +56,9 @@ export default function SpjPage() {
     if (!error && data) {
       setRecaps(data as SupabaseSpjRow[]);
     }
-  }, [supabase]);
+  }
 
-  const fetchApprovedSpbs = useCallback(async () => {
+  async function fetchApprovedSpbs() {
     const { data } = await supabase
       .from("spb_recap")
       .select("no_spb")
@@ -63,12 +68,7 @@ export default function SpjPage() {
     if (data) {
       setApprovedSpbs(data.map((row) => row.no_spb));
     }
-  }, [supabase]);
-
-  useEffect(() => {
-    fetchSpjLogs();
-    fetchApprovedSpbs();
-  }, [fetchSpjLogs, fetchApprovedSpbs]);
+  }
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -100,7 +100,10 @@ export default function SpjPage() {
         lampiranUrl: "",
       });
       fetchSpjLogs();
-    } else if ("errorType" in result && result.errorType === "INSUFFICIENT_FUNDS") {
+    } else if (
+      "errorType" in result &&
+      result.errorType === "INSUFFICIENT_FUNDS"
+    ) {
       setErrorDialog({ open: true, message: result.message });
     } else {
       alert(`Gagal menyimpan SPJ: ${result.error}`);

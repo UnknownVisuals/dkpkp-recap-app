@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
@@ -41,7 +41,12 @@ export default function SpbPage() {
     lampiranUrl: "",
   });
 
-  const fetchSpbLogs = useCallback(async () => {
+  useEffect(() => {
+    fetchSpbLogs();
+    fetchBudgetAccounts();
+  }, [supabase]);
+
+  async function fetchSpbLogs() {
     const { data, error } = await supabase
       .from("spb_recap")
       .select("*")
@@ -50,9 +55,9 @@ export default function SpbPage() {
     if (!error && data) {
       setRecaps(data as SupabaseSpbRow[]);
     }
-  }, [supabase]);
+  }
 
-  const fetchBudgetAccounts = useCallback(async () => {
+  async function fetchBudgetAccounts() {
     const { data } = await supabase
       .from("budget_accounts")
       .select("*")
@@ -61,12 +66,7 @@ export default function SpbPage() {
     if (data) {
       setBudgetAccounts(data as BudgetAccount[]);
     }
-  }, [supabase]);
-
-  useEffect(() => {
-    fetchSpbLogs();
-    fetchBudgetAccounts();
-  }, [fetchSpbLogs, fetchBudgetAccounts]);
+  }
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
