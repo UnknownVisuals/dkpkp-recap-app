@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SpbFormData } from "@/types/spb";
+import { uploadLampiran } from "@/lib/actions/storage";
+import type { BudgetAccount } from "@/types/budget";
 
 interface SpbFormProps {
   formData: SpbFormData;
   onChange: (key: string, value: string) => void;
   onPrint: () => void;
-  onSave: () => Promise<void>;
+  onSave: (lampiranUrl: string) => Promise<void>;
   isLoading: boolean;
+  budgetAccounts: BudgetAccount[];
 }
 
 export function SpbForm({
@@ -22,8 +25,11 @@ export function SpbForm({
   onPrint,
   onSave,
   isLoading,
+  budgetAccounts,
 }: SpbFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const requiredFields = [
     { key: "noSpb", label: "Nomor Berkas Dokumen SPB" },
@@ -50,9 +56,23 @@ export function SpbForm({
     setErrors(currentErrors);
 
     if (Object.keys(currentErrors).length === 0) {
-      await onSave();
+      setUploading(true);
+      try {
+        let lampiranUrl = "";
+        if (file) {
+          const formDataUpload = new FormData();
+          formDataUpload.append("file", file);
+          const result = await uploadLampiran(formDataUpload);
+          lampiranUrl = result.publicUrl;
+        }
+        await onSave(lampiranUrl);
+      } finally {
+        setUploading(false);
+      }
     }
   };
+
+  const isBusy = isLoading || uploading;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
@@ -78,7 +98,7 @@ export function SpbForm({
                   id="noSpb"
                   value={formData.noSpb}
                   onChange={(e) => onChange("noSpb", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: 719 / 28.26 / Y"
                   className={`h-10 text-sm ${errors.noSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -96,7 +116,7 @@ export function SpbForm({
                 <DatePicker
                   value={formData.tanggal}
                   onChange={(value) => onChange("tanggal", value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Pilih tanggal pembayaran"
                   error={!!errors.tanggal}
                 />
@@ -118,7 +138,7 @@ export function SpbForm({
                   type="number"
                   value={formData.nominal}
                   onChange={(e) => onChange("nominal", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: 2500000"
                   className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -137,7 +157,7 @@ export function SpbForm({
                   id="terbilang"
                   value={formData.terbilang}
                   onChange={(e) => onChange("terbilang", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: Dua Juta Lima Ratus Ribu Rupiah"
                   className={`h-10 text-sm ${errors.terbilang ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -158,7 +178,7 @@ export function SpbForm({
                   id="kepada"
                   value={formData.kepada}
                   onChange={(e) => onChange("kepada", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: Daftar Nama Terlampir"
                   className={`h-10 text-sm ${errors.kepada ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -177,7 +197,7 @@ export function SpbForm({
                   id="untukPembayaran"
                   value={formData.untukPembayaran}
                   onChange={(e) => onChange("untukPembayaran", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: Honorarium Tim Anggota TNI/Polri"
                   className={`h-10 text-sm ${errors.untukPembayaran ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -210,7 +230,7 @@ export function SpbForm({
                 id="kegiatan"
                 value={formData.kegiatan}
                 onChange={(e) => onChange("kegiatan", e.target.value)}
-                disabled={isLoading}
+                disabled={isBusy}
                 placeholder="Cth: Pelaksanaan Pengawasan Keamanan Pangan Segar"
                 className={`h-10 text-sm ${errors.kegiatan ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
@@ -230,7 +250,7 @@ export function SpbForm({
                   id="subKegiatan"
                   value={formData.subKegiatan}
                   onChange={(e) => onChange("subKegiatan", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: 2.09.05.1.01.0008"
                   className={`h-10 text-sm font-mono ${errors.subKegiatan ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
@@ -245,14 +265,20 @@ export function SpbForm({
                 <Label htmlFor="kodeRekening" className="text-xs font-bold">
                   Kode Rekening Belanja Utama
                 </Label>
-                <Input
+                <select
                   id="kodeRekening"
                   value={formData.kodeRekening}
                   onChange={(e) => onChange("kodeRekening", e.target.value)}
-                  disabled={isLoading}
-                  placeholder="Cth: 5.1.02.02.01.00004"
-                  className={`h-10 text-sm font-mono ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                />
+                  disabled={isBusy}
+                  className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                >
+                  <option value="">Pilih rekening belanja</option>
+                  {budgetAccounts.map((acc) => (
+                    <option key={acc.kode_rekening} value={acc.kode_rekening}>
+                      {acc.kode_rekening} - {acc.nama_rekening}
+                    </option>
+                  ))}
+                </select>
                 {errors.kodeRekening && (
                   <p className="text-xs font-medium text-destructive">
                     {errors.kodeRekening}
@@ -285,7 +311,7 @@ export function SpbForm({
                 <Input
                   value={formData.namaPptk || ""}
                   onChange={(e) => onChange("namaPptk", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: Solihin"
                   className="h-10 text-sm"
                 />
@@ -295,7 +321,7 @@ export function SpbForm({
                 <Input
                   value={formData.nipPptk || ""}
                   onChange={(e) => onChange("nipPptk", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: 197206051998031010"
                   className="h-10 text-sm font-mono"
                 />
@@ -313,7 +339,7 @@ export function SpbForm({
                 <Input
                   value={formData.namaPpk || ""}
                   onChange={(e) => onChange("namaPpk", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: Lya Imbasari"
                   className="h-10 text-sm"
                 />
@@ -325,12 +351,33 @@ export function SpbForm({
                 <Input
                   value={formData.nipPpk || ""}
                   onChange={(e) => onChange("nipPpk", e.target.value)}
-                  disabled={isLoading}
+                  disabled={isBusy}
                   placeholder="Cth: 196907071999032003"
                   className="h-10 text-sm font-mono"
                 />
               </div>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lampiran" className="text-xs font-bold">
+              Lampiran Dokumen (PDF/Gambar)
+            </Label>
+            <div className="flex items-center gap-3">
+              <Input
+                id="lampiran"
+                type="file"
+                accept=".pdf,image/*"
+                disabled={isBusy}
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="h-10 text-sm file:cursor-pointer"
+              />
+            </div>
+            {file && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Terpilih: {file.name}
+              </p>
+            )}
           </div>
 
           <div className="pt-2 flex justify-end gap-3">
@@ -339,7 +386,7 @@ export function SpbForm({
               onClick={onPrint}
               variant="outline"
               size="lg"
-              disabled={isLoading}
+              disabled={isBusy}
               className="font-semibold text-sm px-6"
             >
               Cetak Dokumen
@@ -348,11 +395,11 @@ export function SpbForm({
             <Button
               type="button"
               onClick={validateForm}
-              disabled={isLoading}
+              disabled={isBusy}
               size="lg"
               className="font-semibold text-sm px-6"
             >
-              {isLoading ? (
+              {isBusy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Simpan"

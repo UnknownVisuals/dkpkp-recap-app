@@ -1,0 +1,41 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+
+export async function submitSpb(data: {
+  no_spb: string;
+  tanggal: string;
+  nominal: number;
+  terbilang: string;
+  kepada: string;
+  untuk_pembayaran: string;
+  atas_dasar: string;
+  dibebankan_pada: string | null;
+  kegiatan: string;
+  sub_kegiatan: string;
+  kode_rekening: string;
+  nama_pptk: string;
+  nip_pptk: string;
+  nama_ppk: string;
+  nip_ppk: string;
+  lampiran_url: string | null;
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { error } = await supabase.from("spb_recap").insert([
+    {
+      ...data,
+      status: "PENDING",
+      created_by: user.id,
+    },
+  ]);
+
+  if (error) return { success: false, error: error.message };
+
+  return { success: true };
+}

@@ -19,7 +19,7 @@ export function SpbPrint({ data }: SpbPrintProps) {
           <h1 className="text-[13px] font-extrabold uppercase tracking-tight leading-snug">
             Dinas Ketahanan Pangan, Kelautan dan Pertanian
           </h1>
-          <p className="text-[9px] font-medium text-slate-600 mt-0.5 leading-tight">
+          <p className="text-[9px] font-medium mt-0.5 leading-tight">
             Jalan Gunung Sahari Raya No.11 Telp. 6007251, 6286625, Sentral:
             021-XXXXXX, Fax. 6241617, 6007247
             <br />
@@ -32,8 +32,8 @@ export function SpbPrint({ data }: SpbPrintProps) {
         <h3 className="text-base font-bold uppercase underline decoration-1 underline-offset-4">
           SURAT PERINTAH BAYAR (SPB)
         </h3>
-        <p className="font-sans text-xs">
-          No: <span className="font-mono font-bold">{data.noSpb}</span>
+        <p className="text-xs">
+          No: <span className="font-bold">{data.noSpb}</span>
         </p>
       </div>
 
@@ -43,12 +43,12 @@ export function SpbPrint({ data }: SpbPrintProps) {
           memerintahkan Bendahara Pengeluaran agar melakukan pembayaran
           sejumlah:
         </p>
-        <p className="pl-8 font-sans font-bold text-sm">
+        <p className="pl-8 font-bold text-sm">
           Rp.{" "}
           <span className="underline font-bold px-1">
             {Number(data.nominal || 0).toLocaleString("id-ID")},-
           </span>
-          <span className="text-xs font-serif font-normal italic ml-2">
+          <span className="text-xs font-normal italic ml-2">
             ({data.terbilang})
           </span>
         </p>
@@ -86,44 +86,46 @@ export function SpbPrint({ data }: SpbPrintProps) {
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Kode Sub Kegiatan</span>
           <span>:</span>
-          <span className="border-b border-dotted border-black font-mono font-bold">
+          <span className="border-b border-dotted border-black font-bold">
             {data.subKegiatan}
           </span>
         </div>
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Kode Rekening</span>
           <span>:</span>
-          <span className="border-b border-dotted border-black font-mono font-bold">
+          <span className="border-b border-dotted border-black font-bold">
             {data.kodeRekening}
           </span>
         </div>
       </div>
 
-      <div className="pt-16 text-center font-sans text-xs grid grid-cols-2 gap-12">
+      <div className="pt-16 text-center text-xs grid grid-cols-2 gap-12">
         <div className="space-y-16">
-          <p className="font-medium">Bendahara Pengeluaran</p>
-          <div className="space-y-0.5">
-            <p className="font-bold underline">Agung Laksono</p>
-            <p className="font-mono text-[10px]">NIP. 19880508201101013</p>
-          </div>
+          <p className="font-medium">Pejabat Pelaksana Teknis Kegiatan (PPTK)</p>
+          {data.namaPptk ? (
+            <div className="space-y-0.5">
+              <p className="font-bold underline">{data.namaPptk}</p>
+              <p className="text-[10px]">NIP. {data.nipPptk}</p>
+            </div>
+          ) : (
+            <p className="font-bold underline leading-relaxed tracking-widest">
+              ........................................
+            </p>
+          )}
         </div>
-        <div className="space-y-16 ml-auto w-60">
-          <div className="text-left pl-4">
-            <p>
-              Jakarta,{" "}
-              <span className="underline font-sans text-xs px-1">
-                {data.tanggal}
-              </span>
-            </p>
-            <p className="font-medium text-center mt-1">Pengguna Anggaran</p>
-          </div>
+        <div className="space-y-16">
           <div className="space-y-0.5">
-            <p className="font-bold underline text-center">
-              Dr. drh. Hasudungan A. Sidabalok, M.Si.
-            </p>
-            <p className="font-mono text-[10px] text-center">
-              NIP. 197308122006041004
-            </p>
+            <p className="font-medium">Pejabat Pembuat Komitmen (PPK)</p>
+            {data.namaPpk ? (
+              <div className="space-y-0.5">
+                <p className="font-bold underline">{data.namaPpk}</p>
+                <p className="text-[10px]">NIP. {data.nipPpk}</p>
+              </div>
+            ) : (
+              <p className="font-bold underline leading-relaxed tracking-widest">
+                ........................................
+              </p>
+            )}
           </div>
         </div>
       </div>

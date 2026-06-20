@@ -3,8 +3,11 @@
 import { motion } from "framer-motion";
 import { ModuleCard } from "@/components/module-card";
 import { PageTransition } from "@/components/page-transition";
+import { useUser } from "@/hooks/useUser";
 
 export default function HomePage() {
+  const { isAdmin } = useUser();
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -23,7 +26,9 @@ export default function HomePage() {
         stagger
         className="w-full max-w-4xl flex flex-col items-center"
       >
-        <div className="grid gap-8 md:grid-cols-2 w-full">
+        <div
+          className={`grid gap-8 w-full ${isAdmin ? "md:grid-cols-3" : "md:grid-cols-2"}`}
+        >
           <motion.div variants={itemVariants}>
             <ModuleCard
               title="Surat Perintah Bayar (SPB)"
@@ -41,6 +46,17 @@ export default function HomePage() {
               imageUrl="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800"
             />
           </motion.div>
+
+          {isAdmin && (
+            <motion.div variants={itemVariants}>
+              <ModuleCard
+                title="Surat Penyediaan Dana (SPD)"
+                description="Admin tool: replenish budget balances to resolve SALDO_TIDAK_CUKUP on SPJ submissions."
+                href="/spd"
+                imageUrl="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
+              />
+            </motion.div>
+          )}
         </div>
       </PageTransition>
     </div>

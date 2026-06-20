@@ -14,14 +14,33 @@ export interface SpbFormData {
   nipPptk: string;
   namaPpk: string;
   nipPpk: string;
+  lampiranUrl: string;
 }
 
-export interface SpbLogItem {
-  id: string;
-  date: string;
-  recipient: string;
-  amount: string;
-  activity: string;
+export type SpbStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface SpbRow {
+  no_spb: string;
+  tanggal: string;
+  nominal: number;
+  terbilang: string;
+  kepada: string;
+  untuk_pembayaran: string;
+  atas_dasar: string;
+  dibebankan_pada: string | null;
+  kegiatan: string;
+  sub_kegiatan: string;
+  kode_rekening: string;
+  nama_pptk: string;
+  nip_pptk: string;
+  nama_ppk: string;
+  nip_ppk: string;
+  status: SpbStatus;
+  created_by: string;
+  created_at: string;
+  updated_at: string | null;
+  catatan_penolakan: string | null;
+  lampiran_url: string | null;
 }
 
 export interface SupabaseSpbRow {
@@ -30,4 +49,10 @@ export interface SupabaseSpbRow {
   kepada: string;
   nominal: number;
   kegiatan: string;
+  status: SpbStatus;
+  created_by: string;
+  created_at: string;
+  updated_at: string | null;
+  catatan_penolakan: string | null;
+  lampiran_url: string | null;
 }

@@ -1,44 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/hooks/useUser";
 
 export function DashboardHeader() {
   const router = useRouter();
-  const supabase = createClient();
-  const [user, setUser] = useState<{ email: string; role: string } | null>(
-    null,
-  );
-
-  useEffect(() => {
-    async function fetchUser() {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      if (authUser) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", authUser.id)
-          .single();
-        setUser({
-          email: authUser.email || "",
-          role: profile?.role || "STAFF",
-        });
-      }
-    }
-    fetchUser();
-  }, [supabase]);
+  const { user, loading } = useUser();
 
   const handleLogout = async () => {
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
   };
 
-  if (!user) return null;
+  if (loading || !user) return null;
 
   return (
     <div className="flex items-center gap-3 pl-4 pr-1.5 py-1">

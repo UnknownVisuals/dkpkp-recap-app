@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SpjFormData } from "@/types/spj";
+import { uploadLampiran } from "@/lib/actions/storage";
 
 interface SpjFormProps {
   formData: SpjFormData;
   onChange: (key: string, value: string) => void;
   onPrint: () => void;
-  onSave: () => Promise<void>;
+  onSave: (lampiranUrl: string) => Promise<void>;
   isLoading: boolean;
+  approvedSpbs: string[];
 }
 
 export function SpjForm({
@@ -23,8 +25,12 @@ export function SpjForm({
   onPrint,
   onSave,
   isLoading,
+  approvedSpbs,
 }: SpjFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const requiredFields = [
     { key: "noSpj", label: "Nomor Registrasi SPJ" },
@@ -48,7 +54,19 @@ export function SpjForm({
     setErrors(currentErrors);
 
     if (Object.keys(currentErrors).length === 0) {
-      await onSave();
+      setUploading(true);
+      try {
+        let lampiranUrl = "";
+        if (file) {
+          const formDataUpload = new FormData();
+          formDataUpload.append("file", file);
+          const result = await uploadLampiran(formDataUpload);
+          lampiranUrl = result.publicUrl;
+        }
+        await onSave(lampiranUrl);
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -75,7 +93,7 @@ export function SpjForm({
                 id="noSpj"
                 value={formData.noSpj}
                 onChange={(e) => onChange("noSpj", e.target.value)}
-                disabled={isLoading}
+                disabled={isLoading || uploading}
                 placeholder="Cth: 120 / SPJ / DKPKP / 2026"
                 className={`h-10 text-sm ${errors.noSpj ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
@@ -90,14 +108,20 @@ export function SpjForm({
               <Label htmlFor="relatedSpb" className="text-xs font-bold">
                 Referensi Hubungan Nomor SPB
               </Label>
-              <Input
+              <select
                 id="relatedSpb"
                 value={formData.relatedSpb}
                 onChange={(e) => onChange("relatedSpb", e.target.value)}
-                disabled={isLoading}
-                placeholder="Cth: 719 / 28.26 / Y"
-                className={`h-10 text-sm font-mono ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
-              />
+                disabled={isLoading || uploading}
+                className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              >
+                <option value="">Pilih SPB yang sudah disetujui</option>
+                {approvedSpbs.map((spb) => (
+                  <option key={spb} value={spb}>
+                    {spb}
+                  </option>
+                ))}
+              </select>
               {errors.relatedSpb && (
                 <p className="text-xs font-medium text-destructive">
                   {errors.relatedSpb}
@@ -114,7 +138,7 @@ export function SpjForm({
               <DatePicker
                 value={formData.tanggal}
                 onChange={(value) => onChange("tanggal", value)}
-                disabled={isLoading}
+                disabled={isLoading || uploading}
                 placeholder="Pilih tanggal pengajuan"
                 error={!!errors.tanggal}
               />
@@ -134,7 +158,7 @@ export function SpjForm({
                 type="number"
                 value={formData.realisasi}
                 onChange={(e) => onChange("realisasi", e.target.value)}
-                disabled={isLoading}
+                disabled={isLoading || uploading}
                 placeholder="Cth: 2450000"
                 className={`h-10 text-sm ${errors.realisasi ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
@@ -154,7 +178,7 @@ export function SpjForm({
               id="namaPenerima"
               value={formData.namaPenerima}
               onChange={(e) => onChange("namaPenerima", e.target.value)}
-              disabled={isLoading}
+              disabled={isLoading || uploading}
               placeholder="Cth: Koordinator Lapangan TNI/Polri"
               className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
@@ -173,7 +197,7 @@ export function SpjForm({
               id="keterangan"
               value={formData.keterangan}
               onChange={(e) => onChange("keterangan", e.target.value)}
-              disabled={isLoading}
+              disabled={isLoading || uploading}
               rows={3}
               placeholder="Cth: Pembayaran Honorarium Transaksi Satgas Lapangan Terlampir"
               className={`resize-none text-sm ${errors.keterangan ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -185,13 +209,35 @@ export function SpjForm({
             )}
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="lampiran" className="text-xs font-bold">
+              Berita Acara / Kwitansi (PDF/Gambar)
+            </Label>
+            <div className="flex items-center gap-3">
+              <Input
+                id="lampiran"
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,image/*"
+                disabled={isLoading || uploading}
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="h-10 text-sm file:cursor-pointer"
+              />
+            </div>
+            {file && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Terpilih: {file.name}
+              </p>
+            )}
+          </div>
+
           <div className="pt-2 flex justify-end gap-3">
             <Button
               type="button"
               onClick={onPrint}
               variant="outline"
               size="lg"
-              disabled={isLoading}
+              disabled={isLoading || uploading}
               className="font-semibold text-sm *:"
             >
               Cetak Dokumen
@@ -200,11 +246,11 @@ export function SpjForm({
             <Button
               type="button"
               onClick={validateForm}
-              disabled={isLoading}
+              disabled={isLoading || uploading}
               size="lg"
               className="font-semibold text-sm px-6"
             >
-              {isLoading ? (
+              {isLoading || uploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Simpan"

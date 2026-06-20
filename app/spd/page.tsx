@@ -4,51 +4,36 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
-import { SpbForm } from "@/components/spb/spb-form";
-import { SpbTable } from "@/components/spb/spb-table";
-import { SpbPrint } from "@/components/spb/spb-print";
+import { ArrowLeft, Plus, Database, PiggyBank } from "lucide-react";
+import { SpdForm } from "@/components/spd/spd-form";
+import { SpdTable } from "@/components/spd/spd-table";
 import { createClient } from "@/lib/supabase/client";
-import { SpbFormData, SupabaseSpbRow } from "@/types/spb";
 import { PageTransition } from "@/components/page-transition";
-import { useUser } from "@/hooks/useUser";
-import { submitSpb } from "@/lib/actions/spb";
+import { submitSpd } from "@/lib/actions/spd";
+import type { SupabaseSpdRow, SpdFormData } from "@/types/spd";
 import type { BudgetAccount } from "@/types/budget";
 
-export default function SpbPage() {
+export default function SpdPage() {
   const supabase = createClient();
-  const { isAdmin } = useUser();
-  const [recaps, setRecaps] = useState<SupabaseSpbRow[]>([]);
+  const [recaps, setRecaps] = useState<SupabaseSpdRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [budgetAccounts, setBudgetAccounts] = useState<BudgetAccount[]>([]);
 
-  const [formData, setFormData] = useState<SpbFormData>({
-    noSpb: "",
+  const [formData, setFormData] = useState<SpdFormData>({
+    noSpd: "",
     tanggal: "",
-    nominal: "",
-    terbilang: "",
-    kepada: "",
-    untukPembayaran: "",
-    atasDasar: "Kwitansi/ Dokumen SPJ",
-    dibebankanPada: "",
-    kegiatan: "",
-    subKegiatan: "",
     kodeRekening: "",
-    namaPptk: "",
-    nipPptk: "",
-    namaPpk: "",
-    nipPpk: "",
-    lampiranUrl: "",
+    nominal: "",
   });
 
-  const fetchSpbLogs = useCallback(async () => {
+  const fetchSpdLogs = useCallback(async () => {
     const { data, error } = await supabase
-      .from("spb_recap")
+      .from("spd_recap")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setRecaps(data as SupabaseSpbRow[]);
+      setRecaps(data as SupabaseSpdRow[]);
     }
   }, [supabase]);
 
@@ -64,66 +49,42 @@ export default function SpbPage() {
   }, [supabase]);
 
   useEffect(() => {
-    fetchSpbLogs();
+    fetchSpdLogs();
     fetchBudgetAccounts();
-  }, [fetchSpbLogs, fetchBudgetAccounts]);
+  }, [fetchSpdLogs, fetchBudgetAccounts]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSaveSpb = async (lampiranUrl: string) => {
+  const handleSaveSpd = async () => {
     setLoading(true);
 
-    const result = await submitSpb({
-      no_spb: formData.noSpb,
+    const result = await submitSpd({
+      no_spd: formData.noSpd,
       tanggal: formData.tanggal,
-      nominal: Number(formData.nominal),
-      terbilang: formData.terbilang,
-      kepada: formData.kepada,
-      untuk_pembayaran: formData.untukPembayaran,
-      atas_dasar: formData.atasDasar,
-      dibebankan_pada: formData.dibebankanPada || null,
-      kegiatan: formData.kegiatan,
-      sub_kegiatan: formData.subKegiatan,
       kode_rekening: formData.kodeRekening,
-      nama_pptk: formData.namaPptk,
-      nip_pptk: formData.nipPptk,
-      nama_ppk: formData.namaPpk,
-      nip_ppk: formData.nipPpk,
-      lampiran_url: lampiranUrl || null,
+      nominal: Number(formData.nominal),
     });
 
     setLoading(false);
 
     if (result.success) {
       setFormData({
-        noSpb: "",
+        noSpd: "",
         tanggal: "",
-        nominal: "",
-        terbilang: "",
-        kepada: "",
-        untukPembayaran: "",
-        atasDasar: "Kwitansi/ Dokumen SPJ",
-        dibebankanPada: "",
-        kegiatan: "",
-        subKegiatan: "",
         kodeRekening: "",
-        namaPptk: "",
-        nipPptk: "",
-        namaPpk: "",
-        nipPpk: "",
-        lampiranUrl: "",
+        nominal: "",
       });
-      fetchSpbLogs();
+      fetchSpdLogs();
     } else {
-      alert(`Gagal menyimpan SPB: ${result.error}`);
+      alert(`Gagal menyimpan SPD: ${result.error}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
-      <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <PageTransition className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center border-b border-slate-200 pb-4">
           <Button
             asChild
@@ -140,15 +101,15 @@ export default function SpbPage() {
 
         <div className="flex items-center gap-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shrink-0">
-            <FileText className="h-7 w-7" />
+            <PiggyBank className="h-7 w-7" />
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-black tracking-tight text-slate-900">
-              Surat Perintah Bayar (SPB)
+              Surat Penyediaan Dana (SPD)
             </h1>
             <p className="text-sm text-slate-600 font-medium">
-              Manage internal budget allocation absorption with standard
-              database-integrated forms.
+              Admin: Isi ulang saldo anggaran untuk membuka blokir
+              &quot;SALDO_TIDAK_CUKUP&quot; pada pengajuan SPJ.
             </p>
           </div>
         </div>
@@ -159,7 +120,7 @@ export default function SpbPage() {
               value="form-entry"
               className="text-sm font-bold gap-2 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
             >
-              <Plus className="h-4 w-4" /> SPB FORM
+              <Plus className="h-4 w-4" /> SPD FORM
             </TabsTrigger>
             <TabsTrigger
               value="recap-log"
@@ -170,23 +131,20 @@ export default function SpbPage() {
           </TabsList>
 
           <TabsContent value="form-entry" className="mt-0 focus-visible:ring-0">
-            <SpbForm
+            <SpdForm
               formData={formData}
               onChange={handleFieldChange}
-              onPrint={() => window.print()}
-              onSave={handleSaveSpb}
+              onSave={handleSaveSpd}
               isLoading={loading}
               budgetAccounts={budgetAccounts}
             />
           </TabsContent>
 
           <TabsContent value="recap-log" className="mt-0 focus-visible:ring-0">
-            <SpbTable logs={recaps} isAdmin={isAdmin} />
+            <SpdTable logs={recaps} />
           </TabsContent>
         </Tabs>
       </PageTransition>
-
-      <SpbPrint data={formData} />
     </div>
   );
 }

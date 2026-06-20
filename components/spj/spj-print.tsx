@@ -19,7 +19,7 @@ export function SpjPrint({ data }: SpjPrintProps) {
           <h1 className="text-[13px] font-extrabold uppercase tracking-tight leading-snug">
             Dinas Ketahanan Pangan, Kelautan dan Pertanian
           </h1>
-          <p className="text-[9px] font-medium text-slate-600 mt-0.5 leading-tight">
+          <p className="text-[9px] font-medium mt-0.5 leading-tight">
             Jalan Gunung Sahari Raya No.11 Telp. 6007251, 6286625, Sentral:
             021-XXXXXX, Fax. 6241617, 6007247
             <br />
@@ -32,15 +32,15 @@ export function SpjPrint({ data }: SpjPrintProps) {
         <h3 className="text-base font-bold uppercase underline decoration-1 underline-offset-4">
           SURAT PERTANGGUNGJAWABAN REALISASI (SPJ)
         </h3>
-        <p className="font-sans text-xs">
-          No: <span className="font-mono font-bold">{data.noSpj}</span>
+        <p className="text-xs">
+          No: <span className="font-bold">{data.noSpj}</span>
         </p>
       </div>
 
       <div className="space-y-3 pt-4 text-justify">
         <p className="indent-8">
           Berdasarkan Surat Perintah Bayar Nomor{" "}
-          <span className="font-bold font-mono">{data.relatedSpb}</span>,
+           <span className="font-bold">{data.relatedSpb}</span>,
           bersama dokumen ini dilaporkan penyerapan anggaran atas nama penerima
           pembayaran belanja terkait dengan perincian nilai sebagai berikut:
         </p>
@@ -57,14 +57,14 @@ export function SpjPrint({ data }: SpjPrintProps) {
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Tanggal Pelaporan</span>
           <span>:</span>
-          <span className="border-b border-dotted border-black pb-0.5 font-sans">
+          <span className="border-b border-dotted border-black pb-0.5">
             {data.tanggal}
           </span>
         </div>
         <div className="grid grid-cols-[145px_10px_1fr] items-center gap-1">
           <span>Realisasi Dana</span>
           <span>:</span>
-          <span className="border-b border-dotted border-black font-sans font-bold">
+          <span className="border-b border-dotted border-black font-bold">
             Rp. {Number(data.realisasi || 0).toLocaleString("id-ID")},-
           </span>
         </div>
@@ -77,18 +77,22 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </div>
       </div>
 
-      <div className="pt-20 text-center font-sans text-xs grid grid-cols-2 gap-12">
-        <div className="space-y-16">
+      <div className="pt-20 text-center text-xs grid grid-cols-2 gap-12">
+        <div className="space-y-12">
           <p className="font-medium">Verifikator Keuangan</p>
-          <p className="font-bold underline">
-            ......................................................
-          </p>
+          <div className="space-y-1 pt-8">
+            <p className="font-bold underline leading-relaxed tracking-widest">
+              ........................................
+            </p>
+            <p className="text-[10px]">NIP. ........................................</p>
+          </div>
         </div>
-        <div className="space-y-16">
+        <div className="space-y-1 pt-8">
           <p className="font-medium">Penanggung Jawab Kegiatan (PPTK)</p>
-          <p className="font-bold underline">
-            ......................................................
+          <p className="font-bold underline leading-relaxed tracking-widest">
+            ........................................
           </p>
+          <p className="text-[10px]">NIP. ........................................</p>
         </div>
       </div>
     </div>

@@ -128,3 +128,18 @@
     @apply font-sans;
   }
 }
+
+@page {
+  size: auto;
+  margin: 2cm 2.5cm;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  header, footer, nav {
+    display: none !important;
+  }
+}
