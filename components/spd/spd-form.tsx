@@ -5,6 +5,13 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import type { SpdFormData } from "@/types/spd";
 import type { BudgetAccount } from "@/types/budget";
@@ -109,20 +116,28 @@ export function SpdForm({
               <Label htmlFor="kodeRekening" className="text-xs font-bold">
                 Kode Rekening
               </Label>
-              <select
-                id="kodeRekening"
+              <Select
                 value={formData.kodeRekening}
-                onChange={(e) => onChange("kodeRekening", e.target.value)}
+                onValueChange={(value) => onChange("kodeRekening", value)}
                 disabled={isLoading}
-                className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
               >
-                <option value="">Pilih rekening belanja</option>
-                {budgetAccounts.map((acc) => (
-                  <option key={acc.kode_rekening} value={acc.kode_rekening}>
-                    {acc.kode_rekening} - {acc.nama_rekening}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="kodeRekening"
+                  className={`w-full ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                >
+                  <SelectValue placeholder="Pilih rekening belanja" />
+                </SelectTrigger>
+                <SelectContent>
+                  {budgetAccounts.map((acc) => (
+                    <SelectItem
+                      key={acc.kode_rekening}
+                      value={acc.kode_rekening}
+                    >
+                      {acc.kode_rekening} - {acc.nama_rekening}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.kodeRekening && (
                 <p className="text-xs font-medium text-destructive">
                   {errors.kodeRekening}
@@ -139,7 +154,9 @@ export function SpdForm({
                 type="text"
                 inputMode="numeric"
                 value={formatCurrency(formData.nominal)}
-                onChange={(e) => onChange("nominal", stripCurrency(e.target.value))}
+                onChange={(e) =>
+                  onChange("nominal", stripCurrency(e.target.value))
+                }
                 disabled={isLoading}
                 placeholder="Cth: 50.000.000"
                 className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}

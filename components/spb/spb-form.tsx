@@ -4,10 +4,18 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SpbFormData } from "@/types/spb";
-import { uploadLampiran } from "@/lib/actions/storage";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { validateSpbForm } from "@/lib/validations/spb";
 import { formatCurrency, stripCurrency } from "@/lib/format";
 import type { BudgetAccount } from "@/types/budget";
 
@@ -29,47 +37,15 @@ export function SpbForm({
   budgetAccounts,
 }: SpbFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const requiredFields = [
-    { key: "noSpb", label: "Nomor Berkas Dokumen SPB" },
-    { key: "tanggal", label: "Tanggal Perintah Pembayaran" },
-    { key: "nominal", label: "Jumlah Nominal Pengeluaran" },
-    { key: "terbilang", label: "Jumlah Uang Dalam Huruf" },
-    { key: "kepada", label: "Kepada Penerima Bayar / Vendor" },
-    { key: "untukPembayaran", label: "Tujuan Rincian Keperluan Pembayaran" },
-    { key: "kegiatan", label: "Nama Paket Kegiatan Anggaran Dinas" },
-    { key: "subKegiatan", label: "Kode Mata Anggaran Sub Kegiatan" },
-    { key: "kodeRekening", label: "Kode Rekening Belanja Utama" },
-  ];
+  const { file, uploading, handleFileChange, upload } = useFileUpload();
 
   const validateForm = async () => {
-    const currentErrors: Record<string, string> = {};
-
-    requiredFields.forEach((field) => {
-      const value = formData[field.key as keyof SpbFormData];
-      if (!value || value.toString().trim() === "") {
-        currentErrors[field.key] = `${field.label} tidak boleh kosong`;
-      }
-    });
-
+    const currentErrors = validateSpbForm(formData);
     setErrors(currentErrors);
 
     if (Object.keys(currentErrors).length === 0) {
-      setUploading(true);
-      try {
-        let lampiranUrl = "";
-        if (file) {
-          const formDataUpload = new FormData();
-          formDataUpload.append("file", file);
-          const result = await uploadLampiran(formDataUpload);
-          lampiranUrl = result.publicUrl;
-        }
-        await onSave(lampiranUrl);
-      } finally {
-        setUploading(false);
-      }
+      const lampiranUrl = await upload();
+      await onSave(lampiranUrl);
     }
   };
 
@@ -139,7 +115,9 @@ export function SpbForm({
                   type="text"
                   inputMode="numeric"
                   value={formatCurrency(formData.nominal)}
-                  onChange={(e) => onChange("nominal", stripCurrency(e.target.value))}
+                  onChange={(e) =>
+                    onChange("nominal", stripCurrency(e.target.value))
+                  }
                   disabled={isBusy}
                   placeholder="Cth: 2.500.000"
                   className={`h-10 text-sm ${errors.nominal ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -267,20 +245,28 @@ export function SpbForm({
                 <Label htmlFor="kodeRekening" className="text-xs font-bold">
                   Kode Rekening Belanja Utama
                 </Label>
-                <select
-                  id="kodeRekening"
+                <Select
                   value={formData.kodeRekening}
-                  onChange={(e) => onChange("kodeRekening", e.target.value)}
+                  onValueChange={(value) => onChange("kodeRekening", value)}
                   disabled={isBusy}
-                  className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 >
-                  <option value="">Pilih rekening belanja</option>
-                  {budgetAccounts.map((acc) => (
-                    <option key={acc.kode_rekening} value={acc.kode_rekening}>
-                      {acc.kode_rekening} - {acc.nama_rekening}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    id="kodeRekening"
+                    className={`w-full ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  >
+                    <SelectValue placeholder="Pilih rekening belanja" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {budgetAccounts.map((acc) => (
+                      <SelectItem
+                        key={acc.kode_rekening}
+                        value={acc.kode_rekening}
+                      >
+                        {acc.kode_rekening} - {acc.nama_rekening}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.kodeRekening && (
                   <p className="text-xs font-medium text-destructive">
                     {errors.kodeRekening}
@@ -371,7 +357,7 @@ export function SpbForm({
                 type="file"
                 accept=".pdf,image/*"
                 disabled={isBusy}
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={handleFileChange}
                 className="h-10 text-sm file:cursor-pointer"
               />
             </div>

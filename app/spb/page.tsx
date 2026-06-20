@@ -1,19 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { use, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Database, FileText } from "lucide-react";
+import { Plus, Database, FileText } from "lucide-react";
 import { SpbForm } from "@/components/spb/spb-form";
 import { SpbTable } from "@/components/spb/spb-table";
 import { SpbPrint } from "@/components/spb/spb-print";
-import { createClient } from "@/lib/supabase/client";
-import { SpbFormData, SupabaseSpbRow } from "@/types/spb";
+import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
+import { useSpb } from "@/hooks/useSpb";
 import { submitSpb, updateSpb } from "@/lib/actions/spb";
-import type { BudgetAccount } from "@/types/budget";
+import type { SpbFormData } from "@/types/spb";
 
 export default function SpbPage({
   searchParams,
@@ -21,12 +19,15 @@ export default function SpbPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const resolvedSearchParams = use(searchParams);
-  const supabase = createClient();
   const { isAdmin } = useUser();
-  const [recaps, setRecaps] = useState<SupabaseSpbRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [budgetAccounts, setBudgetAccounts] = useState<BudgetAccount[]>([]);
-
+  const {
+    recaps,
+    budgetAccounts,
+    loading,
+    setLoading,
+    fetchSpbLogs,
+    fetchSpbForEdit,
+  } = useSpb();
   const [formData, setFormData] = useState<SpbFormData>({
     noSpb: "",
     tanggal: "",
@@ -47,21 +48,9 @@ export default function SpbPage({
   });
 
   useEffect(() => {
-    fetchSpbLogs();
-    fetchBudgetAccounts();
-  }, [supabase]);
-
-  useEffect(() => {
     if (!resolvedSearchParams.edit) return;
-    (async () => {
-      const { data, error } = await supabase
-        .from("spb_recap")
-        .select("*")
-        .eq("no_spb", resolvedSearchParams.edit)
-        .single();
-
-      if (!error && data) {
-        const row = data as SupabaseSpbRow;
+    fetchSpbForEdit(resolvedSearchParams.edit).then((row) => {
+      if (row) {
         setFormData({
           noSpb: row.no_spb,
           tanggal: row.tanggal,
@@ -81,30 +70,8 @@ export default function SpbPage({
           lampiranUrl: row.lampiran_url || "",
         });
       }
-    })();
-  }, [resolvedSearchParams.edit, supabase]);
-
-  async function fetchSpbLogs() {
-    const { data, error } = await supabase
-      .from("spb_recap")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setRecaps(data as SupabaseSpbRow[]);
-    }
-  }
-
-  async function fetchBudgetAccounts() {
-    const { data } = await supabase
-      .from("budget_accounts")
-      .select("*")
-      .order("kode_rekening", { ascending: true });
-
-    if (data) {
-      setBudgetAccounts(data as BudgetAccount[]);
-    }
-  }
+    });
+  }, [resolvedSearchParams.edit, fetchSpbForEdit]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -168,34 +135,11 @@ export default function SpbPage({
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
       <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
-        <div className="flex justify-between items-center border-b border-slate-200 pb-4">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="font-semibold h-9 px-4 bg-white"
-          >
-            <Link href="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Dashboard
-            </Link>
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shrink-0">
-            <FileText className="h-7 w-7" />
-          </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900">
-              Surat Perintah Bayar (SPB)
-            </h1>
-            <p className="text-sm text-slate-600 font-medium">
-              Manage internal budget allocation absorption with standard
-              database-integrated forms.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          icon={FileText}
+          title="Surat Perintah Bayar (SPB)"
+          description="Manage internal budget allocation absorption with standard database-integrated forms."
+        />
 
         <Tabs defaultValue="form-entry" className="w-full space-y-6">
           <TabsList className="w-full grid grid-cols-2 h-14 bg-white border border-slate-200 p-1">

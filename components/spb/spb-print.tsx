@@ -101,7 +101,9 @@ export function SpbPrint({ data }: SpbPrintProps) {
 
       <div className="pt-16 text-center text-xs grid grid-cols-2 gap-12">
         <div className="space-y-16">
-          <p className="font-medium">Pejabat Pelaksana Teknis Kegiatan (PPTK)</p>
+          <p className="font-medium">
+            Pejabat Pelaksana Teknis Kegiatan (PPTK)
+          </p>
           {data.namaPptk ? (
             <div className="space-y-0.5">
               <p className="font-bold underline">{data.namaPptk}</p>

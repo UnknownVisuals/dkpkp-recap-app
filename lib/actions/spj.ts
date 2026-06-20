@@ -48,10 +48,7 @@ export async function submitSpj(data: {
   }
 }
 
-export async function approveDocument(
-  type: "spj" | "spb",
-  id: string,
-) {
+export async function approveDocument(type: "spj" | "spb", id: string) {
   const supabase = await createClient();
 
   const {

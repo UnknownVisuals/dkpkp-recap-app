@@ -1,17 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { use, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Database, FileText, AlertCircle } from "lucide-react";
+import { Plus, Database, FileText, AlertCircle } from "lucide-react";
 import { SpjForm } from "@/components/spj/spj-form";
 import { SpjTable } from "@/components/spj/spj-table";
 import { SpjPrint } from "@/components/spj/spj-print";
-import { createClient } from "@/lib/supabase/client";
-import { SpjFormData, SupabaseSpjRow } from "@/types/spj";
+import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
 import { useUser } from "@/hooks/useUser";
+import { useSpj } from "@/hooks/useSpj";
 import { submitSpj, updateSpj } from "@/lib/actions/spj";
 import {
   Dialog,
@@ -27,17 +25,21 @@ export default function SpjPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const resolvedSearchParams = use(searchParams);
-  const supabase = createClient();
   const { isAdmin } = useUser();
-  const [recaps, setRecaps] = useState<SupabaseSpjRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [approvedSpbs, setApprovedSpbs] = useState<string[]>([]);
+  const {
+    recaps,
+    approvedSpbs,
+    loading,
+    setLoading,
+    fetchSpjLogs,
+    fetchSpjForEdit,
+  } = useSpj();
   const [errorDialog, setErrorDialog] = useState<{
     open: boolean;
     message: string;
   }>({ open: false, message: "" });
 
-  const [formData, setFormData] = useState<SpjFormData>({
+  const [formData, setFormData] = useState({
     noSpj: "",
     relatedSpb: "",
     tanggal: "",
@@ -48,21 +50,9 @@ export default function SpjPage({
   });
 
   useEffect(() => {
-    fetchSpjLogs();
-    fetchApprovedSpbs();
-  }, [supabase]);
-
-  useEffect(() => {
     if (!resolvedSearchParams.edit) return;
-    (async () => {
-      const { data, error } = await supabase
-        .from("spj_recap")
-        .select("*")
-        .eq("no_spj", resolvedSearchParams.edit)
-        .single();
-
-      if (!error && data) {
-        const row = data as SupabaseSpjRow;
+    fetchSpjForEdit(resolvedSearchParams.edit).then((row) => {
+      if (row) {
         setFormData({
           noSpj: row.no_spj,
           relatedSpb: row.related_spb,
@@ -73,31 +63,8 @@ export default function SpjPage({
           lampiranUrl: row.lampiran_url || "",
         });
       }
-    })();
-  }, [resolvedSearchParams.edit, supabase]);
-
-  async function fetchSpjLogs() {
-    const { data, error } = await supabase
-      .from("spj_recap")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setRecaps(data as SupabaseSpjRow[]);
-    }
-  }
-
-  async function fetchApprovedSpbs() {
-    const { data } = await supabase
-      .from("spb_recap")
-      .select("no_spb")
-      .eq("status", "APPROVED")
-      .order("created_at", { ascending: false });
-
-    if (data) {
-      setApprovedSpbs(data.map((row) => row.no_spb));
-    }
-  }
+    });
+  }, [resolvedSearchParams.edit, fetchSpjForEdit]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -148,34 +115,11 @@ export default function SpjPage({
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
       <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
-        <div className="flex justify-between items-center border-b border-slate-200 pb-4">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="font-semibold h-9 px-4 bg-white"
-          >
-            <Link href="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Dashboard
-            </Link>
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shrink-0">
-            <FileText className="h-7 w-7" />
-          </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900">
-              Surat Pertanggungjawaban (SPJ)
-            </h1>
-            <p className="text-sm text-slate-600 font-medium">
-              Manage expenditure realization recording and physical payment
-              receipt verification.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          icon={FileText}
+          title="Surat Pertanggungjawaban (SPJ)"
+          description="Manage expenditure realization recording and physical payment receipt verification."
+        />
 
         <Tabs defaultValue="form-entry" className="w-full space-y-6">
           <TabsList className="w-full grid grid-cols-2 h-14 bg-white border border-slate-200 p-1">

@@ -40,9 +40,9 @@ export function SpjPrint({ data }: SpjPrintProps) {
       <div className="space-y-3 pt-4 text-justify">
         <p className="indent-8">
           Berdasarkan Surat Perintah Bayar Nomor{" "}
-           <span className="font-bold">{data.relatedSpb}</span>,
-          bersama dokumen ini dilaporkan penyerapan anggaran atas nama penerima
-          pembayaran belanja terkait dengan perincian nilai sebagai berikut:
+          <span className="font-bold">{data.relatedSpb}</span>, bersama dokumen
+          ini dilaporkan penyerapan anggaran atas nama penerima pembayaran
+          belanja terkait dengan perincian nilai sebagai berikut:
         </p>
       </div>
 
@@ -84,7 +84,9 @@ export function SpjPrint({ data }: SpjPrintProps) {
             <p className="font-bold underline leading-relaxed tracking-widest">
               ........................................
             </p>
-            <p className="text-[10px]">NIP. ........................................</p>
+            <p className="text-[10px]">
+              NIP. ........................................
+            </p>
           </div>
         </div>
         <div className="space-y-1 pt-8">
@@ -92,7 +94,9 @@ export function SpjPrint({ data }: SpjPrintProps) {
           <p className="font-bold underline leading-relaxed tracking-widest">
             ........................................
           </p>
-          <p className="text-[10px]">NIP. ........................................</p>
+          <p className="text-[10px]">
+            NIP. ........................................
+          </p>
         </div>
       </div>
     </div>

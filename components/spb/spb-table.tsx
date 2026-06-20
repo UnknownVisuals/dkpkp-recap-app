@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ExternalLink, CheckCircle2, XCircle, Loader2, Pencil } from "lucide-react";
+import {
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Pencil,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,16 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { RejectDialog } from "@/components/spb/reject-dialog";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
 import type { SupabaseSpbRow, SpbStatus } from "@/types/spb";
 
@@ -38,12 +35,14 @@ interface SpbTableProps {
   onRefresh?: () => void;
 }
 
-const statusVariant: Record<SpbStatus, "secondary" | "default" | "destructive"> =
-  {
-    PENDING: "secondary",
-    APPROVED: "default",
-    REJECTED: "destructive",
-  };
+const statusVariant: Record<
+  SpbStatus,
+  "secondary" | "default" | "destructive"
+> = {
+  PENDING: "secondary",
+  APPROVED: "default",
+  REJECTED: "destructive",
+};
 
 const statusLabel: Record<SpbStatus, string> = {
   PENDING: "Pending",
@@ -95,16 +94,20 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
         <Table className="min-w-175">
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold w-35 h-12 px-4">No. SPB</TableHead>
-              <TableHead className="font-bold w-27.5 h-12 px-4">Tanggal</TableHead>
-              <TableHead className="font-bold w-40 h-12 px-4">Kepada</TableHead>
-              <TableHead className="font-bold h-12 px-4">Kegiatan</TableHead>
+              <TableHead className="font-bold text-center w-35 h-12 px-4">
+                No. SPB
+              </TableHead>
+              <TableHead className="font-bold text-center w-27.5 h-12 px-4">
+                Tanggal
+              </TableHead>
+              <TableHead className="font-bold text-center w-40 h-12 px-4">Kepada</TableHead>
+              <TableHead className="font-bold text-center h-12 px-4">Kegiatan</TableHead>
               <TableHead className="font-bold text-right w-30 h-12 px-4">
                 Nominal
               </TableHead>
-              <TableHead className="font-bold w-24 h-12 px-4">Status</TableHead>
-              <TableHead className="font-bold w-20 h-12 px-4">File</TableHead>
-              <TableHead className="font-bold w-36 h-12 px-4">Aksi</TableHead>
+              <TableHead className="font-bold text-center w-24 h-12 px-4">Status</TableHead>
+              <TableHead className="font-bold text-center w-20 h-12 px-4">File</TableHead>
+              <TableHead className="font-bold text-center w-36 h-12 px-4">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-xs leading-normal">
@@ -120,7 +123,7 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
             ) : (
               logs.map((item) => (
                 <TableRow key={item.no_spb}>
-                  <TableCell className="font-bold font-mono max-w-35 py-3.5 px-4">
+                  <TableCell className="font-bold font-mono text-center max-w-35 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.no_spb}</span>
@@ -130,10 +133,10 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground whitespace-nowrap py-3.5 px-4">
+                  <TableCell className="text-muted-foreground text-center whitespace-nowrap py-3.5 px-4">
                     {item.tanggal}
                   </TableCell>
-                  <TableCell className="font-semibold max-w-40 py-3.5 px-4">
+                  <TableCell className="font-semibold text-center max-w-40 py-3.5 px-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="truncate block">{item.kepada}</span>
@@ -143,13 +146,13 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground wrap-break-word whitespace-normal min-w-30 py-3.5 px-4">
+                  <TableCell className="text-muted-foreground text-center wrap-break-word whitespace-normal min-w-30 py-3.5 px-4">
                     {item.kegiatan}
                   </TableCell>
                   <TableCell className="font-bold text-right whitespace-nowrap text-sm py-3.5 px-4">
                     Rp {Number(item.nominal).toLocaleString("id-ID")}
                   </TableCell>
-                  <TableCell className="py-3.5 px-4">
+                  <TableCell className="text-center py-3.5 px-4">
                     <Tooltip
                       open={
                         item.status === "REJECTED" && !!item.catatan_penolakan
@@ -169,35 +172,34 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
                       )}
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="py-3.5 px-4">
+                  <TableCell className="text-center py-3.5 px-4">
                     {item.lampiran_url ? (
-                      <a
-                        href={item.lampiran_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        asChild
                       >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
+                        <a
+                          href={item.lampiran_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </a>
+                        </a>
+                      </Button>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="py-3.5 px-4">
+                  <TableCell className="text-center py-3.5 px-4">
                     {isAdmin ? (
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={() =>
-                            handleApprove("spb", item.no_spb)
-                          }
+                          onClick={() => handleApprove("spb", item.no_spb)}
                           disabled={loadingId !== null}
                           title="Setujui"
                         >
@@ -225,7 +227,11 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                        onClick={() => router.push(`/spb?edit=${encodeURIComponent(item.no_spb)}`)}
+                        onClick={() =>
+                          router.push(
+                            `/spb?edit=${encodeURIComponent(item.no_spb)}`,
+                          )
+                        }
                         title="Perbaiki Dokumen"
                       >
                         <Pencil className="h-4 w-4" />
@@ -241,7 +247,7 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
         </Table>
       </div>
 
-      <Dialog
+      <RejectDialog
         open={!!rejectTarget}
         onOpenChange={(open) => {
           if (!open) {
@@ -249,47 +255,11 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
             setRejectReason("");
           }
         }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Alasan Penolakan</DialogTitle>
-            <DialogDescription>
-              Masukkan catatan mengapa dokumen ini ditolak.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="rejectReason" className="text-xs font-bold">
-              Catatan Penolakan
-            </Label>
-            <Textarea
-              id="rejectReason"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              rows={3}
-              placeholder="Masukkan alasan penolakan..."
-              className="resize-none"
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setRejectTarget(null);
-                setRejectReason("");
-              }}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleReject}
-              disabled={!rejectReason.trim()}
-            >
-              Konfirmasi Tolak
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        reason={rejectReason}
+        onReasonChange={setRejectReason}
+        onConfirm={handleReject}
+        isLoading={loadingId !== null}
+      />
     </TooltipProvider>
   );
 }

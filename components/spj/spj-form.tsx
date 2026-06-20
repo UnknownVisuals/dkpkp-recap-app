@@ -1,14 +1,22 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
-import { SpjFormData } from "@/types/spj";
-import { uploadLampiran } from "@/lib/actions/storage";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { validateSpjForm } from "@/lib/validations/spj";
+import type { SpjFormData } from "@/types/spj";
 import { formatCurrency, stripCurrency } from "@/lib/format";
 
 interface SpjFormProps {
@@ -29,45 +37,16 @@ export function SpjForm({
   approvedSpbs,
 }: SpjFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const requiredFields = [
-    { key: "noSpj", label: "Nomor Registrasi SPJ" },
-    { key: "relatedSpb", label: "Referensi Hubungan Nomor SPB" },
-    { key: "tanggal", label: "Tanggal Pengajuan SPJ" },
-    { key: "realisasi", label: "Total Realisasi Anggaran Terpakai" },
-    { key: "namaPenerima", label: "Pihak Penerima Dana Anggaran Belanja" },
-    { key: "keterangan", label: "Keterangan Realisasi Belanja" },
-  ];
+  const { file, uploading, fileInputRef, handleFileChange, upload } =
+    useFileUpload();
 
   const validateForm = async () => {
-    const currentErrors: Record<string, string> = {};
-
-    requiredFields.forEach((field) => {
-      const value = formData[field.key as keyof SpjFormData];
-      if (!value || value.toString().trim() === "") {
-        currentErrors[field.key] = `${field.label} tidak boleh kosong`;
-      }
-    });
-
+    const currentErrors = validateSpjForm(formData);
     setErrors(currentErrors);
 
     if (Object.keys(currentErrors).length === 0) {
-      setUploading(true);
-      try {
-        let lampiranUrl = "";
-        if (file) {
-          const formDataUpload = new FormData();
-          formDataUpload.append("file", file);
-          const result = await uploadLampiran(formDataUpload);
-          lampiranUrl = result.publicUrl;
-        }
-        await onSave(lampiranUrl);
-      } finally {
-        setUploading(false);
-      }
+      const lampiranUrl = await upload();
+      await onSave(lampiranUrl);
     }
   };
 
@@ -109,20 +88,25 @@ export function SpjForm({
               <Label htmlFor="relatedSpb" className="text-xs font-bold">
                 Referensi Hubungan Nomor SPB
               </Label>
-              <select
-                id="relatedSpb"
+              <Select
                 value={formData.relatedSpb}
-                onChange={(e) => onChange("relatedSpb", e.target.value)}
+                onValueChange={(value) => onChange("relatedSpb", value)}
                 disabled={isLoading || uploading}
-                className={`flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
               >
-                <option value="">Pilih SPB yang sudah disetujui</option>
-                {approvedSpbs.map((spb) => (
-                  <option key={spb} value={spb}>
-                    {spb}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="relatedSpb"
+                  className={`w-full ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                >
+                  <SelectValue placeholder="Pilih SPB yang sudah disetujui" />
+                </SelectTrigger>
+                <SelectContent>
+                  {approvedSpbs.map((spb) => (
+                    <SelectItem key={spb} value={spb}>
+                      {spb}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.relatedSpb && (
                 <p className="text-xs font-medium text-destructive">
                   {errors.relatedSpb}
@@ -159,7 +143,9 @@ export function SpjForm({
                 type="text"
                 inputMode="numeric"
                 value={formatCurrency(formData.realisasi)}
-                onChange={(e) => onChange("realisasi", stripCurrency(e.target.value))}
+                onChange={(e) =>
+                  onChange("realisasi", stripCurrency(e.target.value))
+                }
                 disabled={isLoading || uploading}
                 placeholder="Cth: 2.450.000"
                 className={`h-10 text-sm ${errors.realisasi ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -222,7 +208,7 @@ export function SpjForm({
                 type="file"
                 accept=".pdf,image/*"
                 disabled={isLoading || uploading}
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={handleFileChange}
                 className="h-10 text-sm file:cursor-pointer"
               />
             </div>
