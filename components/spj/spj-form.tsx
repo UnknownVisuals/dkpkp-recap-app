@@ -150,14 +150,14 @@ export function SpjForm({
             <Label htmlFor="namaPenerima" className="text-xs font-bold">
               Pihak Penerima Dana Anggaran Belanja
             </Label>
-              <Input
-                id="namaPenerima"
-                value={formData.namaPenerima}
-                onChange={(e) => onChange("namaPenerima", e.target.value)}
-                disabled={isLoading}
-                placeholder="Cth: Koordinator Lapangan TNI/Polri"
-                className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
-              />
+            <Input
+              id="namaPenerima"
+              value={formData.namaPenerima}
+              onChange={(e) => onChange("namaPenerima", e.target.value)}
+              disabled={isLoading}
+              placeholder="Cth: Koordinator Lapangan TNI/Polri"
+              className={`h-10 text-sm ${errors.namaPenerima ? "border-destructive focus-visible:ring-destructive" : ""}`}
+            />
             {errors.namaPenerima && (
               <p className="text-xs font-medium text-destructive">
                 {errors.namaPenerima}
@@ -175,7 +175,7 @@ export function SpjForm({
               onChange={(e) => onChange("keterangan", e.target.value)}
               disabled={isLoading}
               rows={3}
-                  placeholder="Cth: Pembayaran Honorarium Transaksi Satgas Lapangan Terlampir"
+              placeholder="Cth: Pembayaran Honorarium Transaksi Satgas Lapangan Terlampir"
               className={`resize-none text-sm ${errors.keterangan ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
             {errors.keterangan && (
@@ -192,9 +192,9 @@ export function SpjForm({
               variant="outline"
               size="lg"
               disabled={isLoading}
-              className="font-semibold text-sm"
+              className="font-semibold text-sm *:"
             >
-              Cetak
+              Cetak Dokumen
             </Button>
 
             <Button
@@ -204,7 +204,11 @@ export function SpjForm({
               size="lg"
               className="font-semibold text-sm px-6"
             >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Simpan"}
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Simpan"
+              )}
             </Button>
           </div>
         </form>

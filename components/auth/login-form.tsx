@@ -76,7 +76,12 @@ export function LoginForm() {
           <p className="text-xs font-medium text-destructive">{error}</p>
         )}
 
-        <Button type="submit" disabled={loading} size="lg" className="w-full">
+        <Button
+          type="submit"
+          disabled={loading}
+          size="lg"
+          className="w-full font-semibold text-sm"
+        >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
         </Button>
       </form>
@@ -98,7 +103,7 @@ export function LoginForm() {
         Don`t have an account?{" "}
         <Link
           href="/signup"
-          className="font-medium text-blue-600 hover:text-blue-500"
+          className="font-semibold text-blue-600 hover:text-blue-500"
         >
           Sign up
         </Link>

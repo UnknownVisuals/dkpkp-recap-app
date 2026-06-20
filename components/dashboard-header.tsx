@@ -43,10 +43,10 @@ export function DashboardHeader() {
   return (
     <div className="flex items-center gap-3 pl-4 pr-1.5 py-1">
       <div className="flex flex-col items-end text-right">
-        <span className="text-[10px] font-bold leading-none text-slate-800">
+        <span className="text-[12px] font-semibold leading-none text-slate-800">
           {user.email}
         </span>
-        <span className="text-[9px] uppercase tracking-wider text-primary font-extrabold">
+        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-extrabold">
           {user.role}
         </span>
       </div>
@@ -54,7 +54,7 @@ export function DashboardHeader() {
         variant="ghost"
         size="icon"
         onClick={handleLogout}
-        className="h-7 w-7 rounded-full hover:bg-destructive hover:text-white"
+        className="h-7 w-7 rounded-lg hover:bg-destructive hover:text-white"
       >
         <LogOut className="h-3.5 w-3.5" />
       </Button>

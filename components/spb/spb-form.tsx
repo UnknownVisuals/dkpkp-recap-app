@@ -211,7 +211,7 @@ export function SpbForm({
                 value={formData.kegiatan}
                 onChange={(e) => onChange("kegiatan", e.target.value)}
                 disabled={isLoading}
-                  placeholder="Cth: Pelaksanaan Pengawasan Keamanan Pangan Segar"
+                placeholder="Cth: Pelaksanaan Pengawasan Keamanan Pangan Segar"
                 className={`h-10 text-sm ${errors.kegiatan ? "border-destructive focus-visible:ring-destructive" : ""}`}
               />
               {errors.kegiatan && (
@@ -340,7 +340,7 @@ export function SpbForm({
               variant="outline"
               size="lg"
               disabled={isLoading}
-              className="font-semibold text-sm"
+              className="font-semibold text-sm px-6"
             >
               Cetak Dokumen
             </Button>

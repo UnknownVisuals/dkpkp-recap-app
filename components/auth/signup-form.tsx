@@ -118,7 +118,12 @@ export function SignUpForm() {
           <p className="text-xs font-medium text-destructive">{error}</p>
         )}
 
-        <Button type="submit" disabled={loading} size="lg" className="w-full">
+        <Button
+          type="submit"
+          disabled={loading}
+          size="lg"
+          className="w-full font-semibold text-sm"
+        >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -144,7 +149,7 @@ export function SignUpForm() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-blue-600 hover:text-blue-500"
+          className="font-semibold text-blue-600 hover:text-blue-500"
         >
           Sign in
         </Link>
@@ -163,10 +168,7 @@ export function SignUpForm() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              onClick={handleCloseSuccess}
-              size="lg"
-            >
+            <Button onClick={handleCloseSuccess} size="lg">
               Login Now
             </Button>
           </DialogFooter>
