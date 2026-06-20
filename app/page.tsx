@@ -53,7 +53,7 @@ export default function HomePage() {
                 title="Surat Penyediaan Dana (SPD)"
                 description="Admin tool: replenish budget balances to resolve SALDO_TIDAK_CUKUP on SPJ submissions."
                 href="/spd"
-                imageUrl="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800"
+                imageUrl="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800"
               />
             </motion.div>
           )}

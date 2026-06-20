@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
@@ -15,14 +16,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Image
-            src="/logo.png"
-            alt="SIPANGAN KPKP"
-            height={36}
-            width={81}
-            className="object-contain"
-            priority
-          />
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="SIPANGAN KPKP"
+              height={36}
+              width={81}
+              className="object-contain cursor-pointer"
+              priority
+            />
+          </Link>
           <DashboardHeader />
         </div>
       </header>
