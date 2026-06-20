@@ -47,7 +47,7 @@ export function AuthLayout({
         />
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-slate-900/70 z-0" />
+        <div className="absolute inset-0 bg-primary/70 z-0" />
 
         {/* Logo (Top Left) */}
         <div className="relative z-10 flex items-center gap-2">
@@ -78,8 +78,7 @@ export function AuthLayout({
             transition={{ ...customTransition, delay: 0.3 }}
             className="text-slate-200 text-sm max-w-md leading-relaxed"
           >
-            Dinas Ketahanan Pangan, Kelautan dan Pertanian Provinsi DKI
-            Jakarta.
+            Dinas Ketahanan Pangan, Kelautan dan Pertanian Provinsi DKI Jakarta.
           </motion.p>
         </div>
       </motion.div>
@@ -100,7 +99,7 @@ export function AuthLayout({
             transition={{ ...customTransition, delay: 0.2 }}
             className="space-y-2"
           >
-            <div className="flex lg:hidden h-10 w-10 items-center justify-center rounded-lg bg-slate-900 mb-6">
+            <div className="flex lg:hidden h-10 w-10 items-center justify-center rounded-lg bg-primary mb-6">
               <Image
                 src="/logo.png"
                 alt="Logo"

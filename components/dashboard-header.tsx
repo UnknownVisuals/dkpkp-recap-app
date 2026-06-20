@@ -46,7 +46,7 @@ export function DashboardHeader() {
         <span className="text-[10px] font-bold leading-none text-slate-800">
           {user.email}
         </span>
-        <span className="text-[9px] uppercase tracking-wider text-blue-600 font-extrabold">
+        <span className="text-[9px] uppercase tracking-wider text-primary font-extrabold">
           {user.role}
         </span>
       </div>
