@@ -34,9 +34,9 @@ export function SpdForm({
   budgetAccounts,
 }: SpdFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const accountLabelMap = new Map(
-    budgetAccounts.map((a) => [a.kode_rekening, `${a.kode_rekening} - ${a.nama_rekening}`]),
-  );
+  const selectedAccount = budgetAccounts.find(
+    (a) => a.kode_rekening === formData.kodeRekening,
+  ) ?? null;
 
   const requiredFields = [
     { key: "noSpd", label: "Nomor SPD" },
@@ -121,9 +121,10 @@ export function SpdForm({
                 Kode Rekening
               </Label>
               <Combobox
-                value={formData.kodeRekening}
-                onValueChange={(value) => onChange("kodeRekening", value ?? "")}
-                itemToStringLabel={(v) => accountLabelMap.get(v) || v}
+                value={selectedAccount}
+                onValueChange={(acc) => onChange("kodeRekening", acc?.kode_rekening ?? "")}
+                items={budgetAccounts}
+                itemToStringLabel={(acc) => `${acc.kode_rekening} - ${acc.nama_rekening}`}
               >
                 <ComboboxInput
                   placeholder="Pilih rekening belanja"
@@ -132,14 +133,11 @@ export function SpdForm({
                 />
                 <ComboboxContent>
                   <ComboboxList>
-                    {budgetAccounts.map((acc) => (
-                      <ComboboxItem
-                        key={acc.kode_rekening}
-                        value={acc.kode_rekening}
-                      >
+                    {(acc: BudgetAccount) => (
+                      <ComboboxItem key={acc.kode_rekening} value={acc}>
                         {acc.kode_rekening} - {acc.nama_rekening}
                       </ComboboxItem>
-                    ))}
+                    )}
                   </ComboboxList>
                   <ComboboxEmpty>
                     Rekening tidak ditemukan

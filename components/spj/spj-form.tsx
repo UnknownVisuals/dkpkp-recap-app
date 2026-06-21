@@ -92,6 +92,7 @@ export function SpjForm({
               <Combobox
                 value={formData.relatedSpb}
                 onValueChange={(value) => onChange("relatedSpb", value ?? "")}
+                items={approvedSpbs}
               >
                 <ComboboxInput
                   placeholder="Pilih SPB yang sudah disetujui"
@@ -100,15 +101,13 @@ export function SpjForm({
                 />
                 <ComboboxContent>
                   <ComboboxList>
-                    {approvedSpbs.map((spb) => (
+                    {(spb: string) => (
                       <ComboboxItem key={spb} value={spb}>
                         {spb}
                       </ComboboxItem>
-                    ))}
+                    )}
                   </ComboboxList>
-                  <ComboboxEmpty>
-                    SPB tidak ditemukan
-                  </ComboboxEmpty>
+                  <ComboboxEmpty>SPB tidak ditemukan</ComboboxEmpty>
                 </ComboboxContent>
               </Combobox>
               {errors.relatedSpb && (

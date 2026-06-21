@@ -39,9 +39,9 @@ export function SpbForm({
 }: SpbFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { file, uploading, handleFileChange, upload } = useFileUpload();
-  const accountLabelMap = new Map(
-    budgetAccounts.map((a) => [a.kode_rekening, `${a.kode_rekening} - ${a.nama_rekening}`]),
-  );
+  const selectedAccount = budgetAccounts.find(
+    (a) => a.kode_rekening === formData.kodeRekening,
+  ) ?? null;
 
   const validateForm = async () => {
     const currentErrors = validateSpbForm(formData);
@@ -250,9 +250,10 @@ export function SpbForm({
                   Kode Rekening Belanja Utama
                 </Label>
                 <Combobox
-                  value={formData.kodeRekening}
-                  onValueChange={(value) => onChange("kodeRekening", value ?? "")}
-                  itemToStringLabel={(v) => accountLabelMap.get(v) || v}
+                  value={selectedAccount}
+                  onValueChange={(acc) => onChange("kodeRekening", acc?.kode_rekening ?? "")}
+                  items={budgetAccounts}
+                  itemToStringLabel={(acc) => `${acc.kode_rekening} - ${acc.nama_rekening}`}
                 >
                   <ComboboxInput
                     placeholder="Pilih rekening belanja"
@@ -261,14 +262,11 @@ export function SpbForm({
                   />
                   <ComboboxContent>
                     <ComboboxList>
-                      {budgetAccounts.map((acc) => (
-                        <ComboboxItem
-                          key={acc.kode_rekening}
-                          value={acc.kode_rekening}
-                        >
+                      {(acc: BudgetAccount) => (
+                        <ComboboxItem key={acc.kode_rekening} value={acc}>
                           {acc.kode_rekening} - {acc.nama_rekening}
                         </ComboboxItem>
-                      ))}
+                      )}
                     </ComboboxList>
                     <ComboboxEmpty>
                       Rekening tidak ditemukan
