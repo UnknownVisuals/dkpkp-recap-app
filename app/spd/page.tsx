@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Database, PiggyBank } from "lucide-react";
 import { SpdForm } from "@/components/spd/spd-form";
 import { SpdTable } from "@/components/spd/spd-table";
+import { SpdPrint } from "@/components/spd/spd-print";
 import { ErrorDialog } from "@/components/ui/error-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { PageTransition } from "@/components/page-transition";
@@ -58,8 +59,8 @@ export default function SpdPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <PageTransition className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
+      <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
         <PageHeader
           icon={PiggyBank}
           title="Surat Penyediaan Dana (SPD)"
@@ -87,6 +88,7 @@ export default function SpdPage() {
               formData={formData}
               onChange={handleFieldChange}
               onSave={handleSaveSpd}
+              onPrint={() => window.print()}
               isLoading={loading}
               budgetAccounts={budgetAccounts}
             />
@@ -97,6 +99,8 @@ export default function SpdPage() {
           </TabsContent>
         </Tabs>
       </PageTransition>
+
+      <SpdPrint data={formData} />
 
       <ErrorDialog
         open={errorDialog.open}

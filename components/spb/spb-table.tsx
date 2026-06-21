@@ -8,6 +8,7 @@ import {
   XCircle,
   Loader2,
   Pencil,
+  Download,
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
@@ -33,6 +34,7 @@ import { FilePreviewDialog } from "@/components/ui/file-preview-dialog";
 import { RejectDialog } from "@/components/spb/reject-dialog";
 import { SearchInput } from "@/components/ui/search-input";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
+import { exportToExcel } from "@/lib/export-to-excel";
 import type { SupabaseSpbRow, SpbStatus } from "@/types/spb";
 
 interface SpbTableProps {
@@ -169,12 +171,35 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
   return (
     <TooltipProvider>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Cari SPB..."
           />
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() =>
+              exportToExcel(
+                sortedAndFiltered,
+                [
+                  { header: "No. SPB", accessor: (r) => r.no_spb },
+                  { header: "Tanggal", accessor: (r) => r.tanggal },
+                  { header: "Kepada", accessor: (r) => r.kepada },
+                  { header: "Kegiatan", accessor: (r) => r.kegiatan },
+                  { header: "Nominal", accessor: (r) => r.nominal },
+                  { header: "Status", accessor: (r) => r.status },
+                  { header: "Catatan", accessor: (r) => r.catatan_penolakan ?? "" },
+                ],
+                "SPB",
+              )
+            }
+            className="font-semibold text-xs h-9 gap-1.5"
+          >
+            <Download className="h-4 w-4" />
+            Export Excel
+          </Button>
         </div>
 
         <Table className="min-w-175">

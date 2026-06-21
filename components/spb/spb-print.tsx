@@ -5,11 +5,17 @@ interface SpbPrintProps {
   data: SpbFormData;
 }
 
+function isImageUrl(url: string) {
+  return /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i.test(url);
+}
+
 export function SpbPrint({ data }: SpbPrintProps) {
+  const lampiranUrl = data.lampiranUrl;
+
   return (
-    <div className="hidden print:block font-serif max-w-full text-black text-[14px] leading-relaxed p-0">
+    <div className="hidden print:block font-serif max-w-full text-black text-[12px] leading-relaxed p-0">
       <div className="flex items-start gap-4 border-b-4 border-double border-black pb-3 relative font-sans">
-        <div className="w-14 h-18 border border-black flex items-center justify-center text-black shrink-0">
+        <div className="w-14 h-16 border border-black flex items-center justify-center text-black shrink-0">
           <Building2 className="h-7 w-7 text-black" />
         </div>
         <div className="flex-1 text-center tracking-wide">
@@ -104,33 +110,67 @@ export function SpbPrint({ data }: SpbPrintProps) {
           <p className="font-medium">
             Pejabat Pelaksana Teknis Kegiatan (PPTK)
           </p>
-          {data.namaPptk ? (
-            <div className="space-y-0.5">
-              <p className="font-bold underline">{data.namaPptk}</p>
-              <p className="text-[10px]">NIP. {data.nipPptk}</p>
-            </div>
-          ) : (
-            <p className="font-bold underline leading-relaxed tracking-widest">
-              ........................................
-            </p>
-          )}
+          <div className="space-y-1">
+            {data.namaPptk ? (
+              <>
+                <p className="font-bold underline">{data.namaPptk}</p>
+                <p className="text-[10px]">NIP. {data.nipPptk}</p>
+              </>
+            ) : (
+              <>
+                <p className="font-bold underline leading-relaxed tracking-widest">
+                  ........................................
+                </p>
+                <p className="text-[10px]">
+                  NIP. ........................................
+                </p>
+              </>
+            )}
+          </div>
         </div>
         <div className="space-y-16">
-          <div className="space-y-0.5">
-            <p className="font-medium">Pejabat Pembuat Komitmen (PPK)</p>
+          <p className="font-medium">Pejabat Pembuat Komitmen (PPK)</p>
+          <div className="space-y-1">
             {data.namaPpk ? (
-              <div className="space-y-0.5">
+              <>
                 <p className="font-bold underline">{data.namaPpk}</p>
                 <p className="text-[10px]">NIP. {data.nipPpk}</p>
-              </div>
+              </>
             ) : (
-              <p className="font-bold underline leading-relaxed tracking-widest">
-                ........................................
-              </p>
+              <>
+                <p className="font-bold underline leading-relaxed tracking-widest">
+                  ........................................
+                </p>
+                <p className="text-[10px]">
+                  NIP. ........................................
+                </p>
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {lampiranUrl && (
+        <div className="page-break-before mt-8 pt-8 border-t border-black">
+          <p className="text-xs font-bold uppercase mb-4">
+            Lampiran
+          </p>
+          {isImageUrl(lampiranUrl) ? (
+            <div className="flex justify-center">
+              <img
+                src={lampiranUrl}
+                alt="Lampiran"
+                className="max-w-full h-auto"
+                style={{ maxHeight: "90vh" }}
+              />
+            </div>
+          ) : (
+            <p className="text-xs italic">
+              * Dokumen lampiran (PDF) tersedia di arsip digital.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

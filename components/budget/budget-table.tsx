@@ -18,7 +18,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SearchInput } from "@/components/ui/search-input";
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowUp, ArrowDown, ArrowUpDown, Download } from "lucide-react";
+import { exportToExcel } from "@/lib/export-to-excel";
 import type { BudgetAccount } from "@/types/budget";
 
 interface BudgetTableProps {
@@ -107,12 +109,31 @@ export function BudgetTable({ refreshKey }: BudgetTableProps) {
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Cari rekening..."
         />
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() =>
+            exportToExcel(
+              sortedAndFiltered,
+              [
+                { header: "Kode Rekening", accessor: (r) => r.kode_rekening },
+                { header: "Nama Rekening", accessor: (r) => r.nama_rekening },
+                { header: "Anggaran Total", accessor: (r) => r.anggaran_total },
+              ],
+              "Master_Rekening",
+            )
+          }
+          className="font-semibold text-xs h-9 gap-1.5"
+        >
+          <Download className="h-4 w-4" />
+          Export Excel
+        </Button>
       </div>
 
       <TooltipProvider>

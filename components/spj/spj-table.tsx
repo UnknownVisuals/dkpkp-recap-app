@@ -8,6 +8,7 @@ import {
   XCircle,
   Loader2,
   Pencil,
+  Download,
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
@@ -33,6 +34,7 @@ import { FilePreviewDialog } from "@/components/ui/file-preview-dialog";
 import { RejectDialog } from "@/components/spj/reject-dialog";
 import { SearchInput } from "@/components/ui/search-input";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
+import { exportToExcel } from "@/lib/export-to-excel";
 import type { SupabaseSpjRow, SpjStatus } from "@/types/spj";
 
 interface SpjTableProps {
@@ -176,12 +178,35 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
   return (
     <TooltipProvider>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Cari SPJ..."
           />
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() =>
+              exportToExcel(
+                sortedAndFiltered,
+                [
+                  { header: "No. SPJ", accessor: (r) => r.no_spj },
+                  { header: "No. SPB Terkait", accessor: (r) => r.related_spb },
+                  { header: "Tanggal", accessor: (r) => r.tanggal },
+                  { header: "Realisasi", accessor: (r) => r.realisasi },
+                  { header: "Penerima Dana", accessor: (r) => r.nama_penerima },
+                  { header: "Status", accessor: (r) => r.status },
+                  { header: "Catatan", accessor: (r) => r.catatan_penolakan ?? "" },
+                ],
+                "SPJ",
+              )
+            }
+            className="font-semibold text-xs h-9 gap-1.5"
+          >
+            <Download className="h-4 w-4" />
+            Export Excel
+          </Button>
         </div>
 
         <Table className="min-w-175">

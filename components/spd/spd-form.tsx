@@ -22,6 +22,7 @@ interface SpdFormProps {
   formData: SpdFormData;
   onChange: (key: string, value: string) => void;
   onSave: () => Promise<void>;
+  onPrint: () => void;
   isLoading: boolean;
   budgetAccounts: BudgetAccount[];
 }
@@ -30,6 +31,7 @@ export function SpdForm({
   formData,
   onChange,
   onSave,
+  onPrint,
   isLoading,
   budgetAccounts,
 }: SpdFormProps) {
@@ -176,6 +178,17 @@ export function SpdForm({
           </div>
 
           <div className="pt-2 flex justify-end gap-3">
+            <Button
+              type="button"
+              onClick={onPrint}
+              variant="outline"
+              size="lg"
+              disabled={isLoading}
+              className="font-semibold text-sm px-6"
+            >
+              Cetak Dokumen
+            </Button>
+
             <Button
               type="button"
               onClick={validateForm}

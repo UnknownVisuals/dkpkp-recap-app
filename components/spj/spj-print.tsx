@@ -5,11 +5,17 @@ interface SpjPrintProps {
   data: SpjFormData;
 }
 
+function isImageUrl(url: string) {
+  return /\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i.test(url);
+}
+
 export function SpjPrint({ data }: SpjPrintProps) {
+  const lampiranUrl = data.lampiranUrl;
+
   return (
-    <div className="hidden print:block font-serif max-w-full text-black text-[14px] leading-relaxed p-0">
+    <div className="hidden print:block font-serif max-w-full text-black text-[12px] leading-relaxed p-0">
       <div className="flex items-start gap-4 border-b-4 border-double border-black pb-3 relative font-sans">
-        <div className="w-14 h-18 border border-black flex items-center justify-center text-black shrink-0">
+        <div className="w-14 h-16 border border-black flex items-center justify-center text-black shrink-0">
           <Building2 className="h-7 w-7 text-black" />
         </div>
         <div className="flex-1 text-center tracking-wide">
@@ -77,10 +83,10 @@ export function SpjPrint({ data }: SpjPrintProps) {
         </div>
       </div>
 
-      <div className="pt-20 text-center text-xs grid grid-cols-2 gap-12">
-        <div className="space-y-12">
+      <div className="pt-16 text-center text-xs grid grid-cols-2 gap-12">
+        <div className="space-y-16">
           <p className="font-medium">Verifikator Keuangan</p>
-          <div className="space-y-1 pt-8">
+          <div className="space-y-1">
             <p className="font-bold underline leading-relaxed tracking-widest">
               ........................................
             </p>
@@ -89,16 +95,40 @@ export function SpjPrint({ data }: SpjPrintProps) {
             </p>
           </div>
         </div>
-        <div className="space-y-1 pt-8">
+        <div className="space-y-16">
           <p className="font-medium">Penanggung Jawab Kegiatan (PPTK)</p>
-          <p className="font-bold underline leading-relaxed tracking-widest">
-            ........................................
-          </p>
-          <p className="text-[10px]">
-            NIP. ........................................
-          </p>
+          <div className="space-y-1">
+            <p className="font-bold underline leading-relaxed tracking-widest">
+              ........................................
+            </p>
+            <p className="text-[10px]">
+              NIP. ........................................
+            </p>
+          </div>
         </div>
       </div>
+
+      {lampiranUrl && (
+        <div className="page-break-before mt-8 pt-8 border-t border-black">
+          <p className="text-xs font-bold uppercase mb-4">
+            Lampiran
+          </p>
+          {isImageUrl(lampiranUrl) ? (
+            <div className="flex justify-center">
+              <img
+                src={lampiranUrl}
+                alt="Lampiran"
+                className="max-w-full h-auto"
+                style={{ maxHeight: "90vh" }}
+              />
+            </div>
+          ) : (
+            <p className="text-xs italic">
+              * Dokumen lampiran (PDF) tersedia di arsip digital.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

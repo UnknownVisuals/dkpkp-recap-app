@@ -142,4 +142,12 @@
   header, footer, nav {
     display: none !important;
   }
+  .page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
 }
