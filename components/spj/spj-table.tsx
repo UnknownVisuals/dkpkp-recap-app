@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ErrorDialog } from "@/components/ui/error-dialog";
+import { FilePreviewDialog } from "@/components/ui/file-preview-dialog";
 import { RejectDialog } from "@/components/spj/reject-dialog";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
 import type { SupabaseSpjRow, SpjStatus } from "@/types/spj";
@@ -63,6 +64,7 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
     open: boolean;
     message: string;
   }>({ open: false, message: "" });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleApprove = async (type: "spj" | "spb", id: string) => {
     setLoadingId(id);
@@ -198,15 +200,10 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0"
-                        asChild
+                        onClick={() => setPreviewUrl(item.lampiran_url!)}
+                        title="Pratinjau"
                       >
-                        <a
-                          href={item.lampiran_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
+                        <ExternalLink className="h-4 w-4" />
                       </Button>
                     ) : (
                       <span className="text-muted-foreground">-</span>
@@ -286,6 +283,12 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
         onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
         title="Gagal Memproses"
         message={errorDialog.message}
+      />
+
+      <FilePreviewDialog
+        open={!!previewUrl}
+        onOpenChange={(open) => { if (!open) setPreviewUrl(null); }}
+        url={previewUrl ?? ""}
       />
     </TooltipProvider>
   );

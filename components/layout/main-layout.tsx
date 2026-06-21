@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { DashboardHeader } from "@/components/dashboard-header";
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
@@ -38,14 +39,20 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-center gap-2">
           <span>Dev by REY</span>
           <span className="text-slate-300">•</span>
-          <a
-            href="https://github.com/UnknownVisuals"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-blue-600 transition-colors"
+          <Button
+            variant="link"
+            size="sm"
+            className="text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-blue-600 p-0 h-auto"
+            asChild
           >
-            GitHub
-          </a>
+            <a
+              href="https://github.com/UnknownVisuals"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
+          </Button>
         </div>
       </footer>
     </div>
