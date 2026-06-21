@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Database, PiggyBank } from "lucide-react";
+import { Plus, Database, DollarSign } from "lucide-react";
 import { SpdForm } from "@/components/spd/spd-form";
 import { SpdTable } from "@/components/spd/spd-table";
 import { SpdPrint } from "@/components/spd/spd-print";
@@ -62,7 +62,7 @@ export default function SpdPage() {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white">
       <PageTransition className="max-w-4xl mx-auto space-y-8 print:hidden">
         <PageHeader
-          icon={PiggyBank}
+          icon={DollarSign}
           title="Surat Penyediaan Dana (SPD)"
           description='Admin: Isi ulang saldo anggaran untuk membuka blokir "SALDO_TIDAK_CUKUP" pada pengajuan SPJ.'
         />

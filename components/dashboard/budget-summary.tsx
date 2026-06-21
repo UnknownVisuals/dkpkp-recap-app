@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wallet, TrendingDown, PiggyBank, Loader2 } from "lucide-react";
+import { Wallet, TrendingDown, DollarSign, Loader2 } from "lucide-react";
 import { useBudgetSummary } from "@/hooks/useBudgetSummary";
 
 function formatIdr(value: number) {
@@ -26,7 +26,7 @@ const cardGradients = [
 const statCards = [
   { label: "Total SPD", icon: Wallet, gradient: cardGradients[0] },
   { label: "Total Terpakai", icon: TrendingDown, gradient: cardGradients[1] },
-  { label: "Sisa Saldo", icon: PiggyBank, gradient: cardGradients[2] },
+  { label: "Sisa Saldo", icon: DollarSign, gradient: cardGradients[2] },
 ];
 
 const itemVariants = {
