@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import type { SpdFormData } from "@/types/spd";
 import type { BudgetAccount } from "@/types/budget";
@@ -33,6 +34,9 @@ export function SpdForm({
   budgetAccounts,
 }: SpdFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const accountLabelMap = new Map(
+    budgetAccounts.map((a) => [a.kode_rekening, `${a.kode_rekening} - ${a.nama_rekening}`]),
+  );
 
   const requiredFields = [
     { key: "noSpd", label: "Nomor SPD" },
@@ -116,28 +120,32 @@ export function SpdForm({
               <Label htmlFor="kodeRekening" className="text-xs font-bold">
                 Kode Rekening
               </Label>
-              <Select
+              <Combobox
                 value={formData.kodeRekening}
-                onValueChange={(value) => onChange("kodeRekening", value)}
-                disabled={isLoading}
+                onValueChange={(value) => onChange("kodeRekening", value ?? "")}
+                itemToStringLabel={(v) => accountLabelMap.get(v) || v}
               >
-                <SelectTrigger
-                  id="kodeRekening"
-                  className={`w-full ${errors.kodeRekening ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                >
-                  <SelectValue placeholder="Pilih rekening belanja" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgetAccounts.map((acc) => (
-                    <SelectItem
-                      key={acc.kode_rekening}
-                      value={acc.kode_rekening}
-                    >
-                      {acc.kode_rekening} - {acc.nama_rekening}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ComboboxInput
+                  placeholder="Pilih rekening belanja"
+                  disabled={isLoading}
+                  aria-invalid={!!errors.kodeRekening || undefined}
+                />
+                <ComboboxContent>
+                  <ComboboxList>
+                    {budgetAccounts.map((acc) => (
+                      <ComboboxItem
+                        key={acc.kode_rekening}
+                        value={acc.kode_rekening}
+                      >
+                        {acc.kode_rekening} - {acc.nama_rekening}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxList>
+                  <ComboboxEmpty>
+                    Rekening tidak ditemukan
+                  </ComboboxEmpty>
+                </ComboboxContent>
+              </Combobox>
               {errors.kodeRekening && (
                 <p className="text-xs font-medium text-destructive">
                   {errors.kodeRekening}

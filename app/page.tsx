@@ -29,9 +29,29 @@ export default function HomePage() {
       >
         <BudgetSummary />
 
-        <div
-          className={`grid gap-8 w-full ${isAdmin ? "md:grid-cols-3" : "md:grid-cols-2"}`}
-        >
+        <div className={`grid gap-8 w-full md:grid-cols-2`}>
+          {isAdmin && (
+            <motion.div variants={itemVariants}>
+              <ModuleCard
+                title="Master Rekening"
+                description="Manage master budget account codes (kode rekening) and their total allocations."
+                href="/rekening"
+                imageUrl="https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?auto=format&fit=crop&q=80&w=800"
+              />
+            </motion.div>
+          )}
+
+          {isAdmin && (
+            <motion.div variants={itemVariants}>
+              <ModuleCard
+                title="Surat Penyediaan Dana (SPD)"
+                description="Admin tool: replenish budget balances to resolve SALDO_TIDAK_CUKUP on SPJ submissions."
+                href="/spd"
+                imageUrl="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800"
+              />
+            </motion.div>
+          )}
+
           <motion.div variants={itemVariants}>
             <ModuleCard
               title="Surat Perintah Bayar (SPB)"
@@ -49,17 +69,6 @@ export default function HomePage() {
               imageUrl="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800"
             />
           </motion.div>
-
-          {isAdmin && (
-            <motion.div variants={itemVariants}>
-              <ModuleCard
-                title="Surat Penyediaan Dana (SPD)"
-                description="Admin tool: replenish budget balances to resolve SALDO_TIDAK_CUKUP on SPJ submissions."
-                href="/spd"
-                imageUrl="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800"
-              />
-            </motion.div>
-          )}
         </div>
       </PageTransition>
     </div>

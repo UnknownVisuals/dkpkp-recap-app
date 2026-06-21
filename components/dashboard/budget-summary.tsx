@@ -75,7 +75,7 @@ export function BudgetSummary() {
                     {card.label}
                   </span>
                 </div>
-                <span className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                <span className="text-lg sm:text-xl font-bold tracking-tight text-white">
                   {loading ? "—" : formatIdr(value)}
                 </span>
               </div>

@@ -10,6 +10,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.108.0",
     "@tabler/icons-react": "^3.44.0",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ExternalLink,
@@ -8,6 +8,9 @@ import {
   XCircle,
   Loader2,
   Pencil,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +31,7 @@ import {
 import { ErrorDialog } from "@/components/ui/error-dialog";
 import { FilePreviewDialog } from "@/components/ui/file-preview-dialog";
 import { RejectDialog } from "@/components/spb/reject-dialog";
+import { SearchInput } from "@/components/ui/search-input";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
 import type { SupabaseSpbRow, SpbStatus } from "@/types/spb";
 
@@ -36,6 +40,8 @@ interface SpbTableProps {
   isAdmin: boolean;
   onRefresh?: () => void;
 }
+
+type SortableColumn = "no_spb" | "tanggal" | "kepada" | "kegiatan" | "nominal" | "status";
 
 const statusVariant: Record<
   SpbStatus,
@@ -65,6 +71,71 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
     message: string;
   }>({ open: false, message: "" });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState<SortableColumn>("tanggal");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (column: SortableColumn) => {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedAndFiltered = useMemo(() => {
+    let result = [...logs];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.no_spb.toLowerCase().includes(q) ||
+          item.tanggal.toLowerCase().includes(q) ||
+          item.kepada.toLowerCase().includes(q) ||
+          item.kegiatan.toLowerCase().includes(q) ||
+          String(item.nominal).includes(q) ||
+          item.status.toLowerCase().includes(q),
+      );
+    }
+
+    result.sort((a, b) => {
+      let cmp = 0;
+      switch (sortColumn) {
+        case "no_spb":
+          cmp = a.no_spb.localeCompare(b.no_spb);
+          break;
+        case "tanggal":
+          cmp = a.tanggal.localeCompare(b.tanggal);
+          break;
+        case "kepada":
+          cmp = a.kepada.localeCompare(b.kepada);
+          break;
+        case "kegiatan":
+          cmp = a.kegiatan.localeCompare(b.kegiatan);
+          break;
+        case "nominal":
+          cmp = a.nominal - b.nominal;
+          break;
+        case "status":
+          cmp = a.status.localeCompare(b.status);
+          break;
+      }
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+
+    return result;
+  }, [logs, searchQuery, sortColumn, sortDirection]);
+
+  function getSortIcon(column: SortableColumn) {
+    if (sortColumn !== column) return <ArrowUpDown className="h-3 w-3 opacity-30" />;
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3" />
+    ) : (
+      <ArrowDown className="h-3 w-3" />
+    );
+  }
 
   const handleApprove = async (type: "spj" | "spb", id: string) => {
     setLoadingId(id);
@@ -98,37 +169,93 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
   return (
     <TooltipProvider>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="mb-4">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Cari SPB..."
+          />
+        </div>
+
         <Table className="min-w-175">
           <TableHeader>
             <TableRow>
               <TableHead className="font-bold text-center w-35 h-12 px-4">
-                No. SPB
+                <button
+                  onClick={() => handleSort("no_spb")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  No. SPB
+                  {getSortIcon("no_spb")}
+                </button>
               </TableHead>
               <TableHead className="font-bold text-center w-27.5 h-12 px-4">
-                Tanggal
+                <button
+                  onClick={() => handleSort("tanggal")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Tanggal
+                  {getSortIcon("tanggal")}
+                </button>
               </TableHead>
-              <TableHead className="font-bold text-center w-40 h-12 px-4">Kepada</TableHead>
-              <TableHead className="font-bold text-center h-12 px-4">Kegiatan</TableHead>
+              <TableHead className="font-bold text-center w-40 h-12 px-4">
+                <button
+                  onClick={() => handleSort("kepada")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Kepada
+                  {getSortIcon("kepada")}
+                </button>
+              </TableHead>
+              <TableHead className="font-bold text-center h-12 px-4">
+                <button
+                  onClick={() => handleSort("kegiatan")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Kegiatan
+                  {getSortIcon("kegiatan")}
+                </button>
+              </TableHead>
               <TableHead className="font-bold text-right w-30 h-12 px-4">
-                Nominal
+                <button
+                  onClick={() => handleSort("nominal")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Nominal
+                  {getSortIcon("nominal")}
+                </button>
               </TableHead>
-              <TableHead className="font-bold text-center w-24 h-12 px-4">Status</TableHead>
-              <TableHead className="font-bold text-center w-20 h-12 px-4">File</TableHead>
-              <TableHead className="font-bold text-center w-36 h-12 px-4">Aksi</TableHead>
+              <TableHead className="font-bold text-center w-24 h-12 px-4">
+                <button
+                  onClick={() => handleSort("status")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Status
+                  {getSortIcon("status")}
+                </button>
+              </TableHead>
+              <TableHead className="font-bold text-center w-20 h-12 px-4">
+                File
+              </TableHead>
+              <TableHead className="font-bold text-center w-36 h-12 px-4">
+                Aksi
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-xs leading-normal">
-            {logs.length === 0 ? (
+            {sortedAndFiltered.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
                   className="text-center py-12 text-muted-foreground"
                 >
-                  Belum ada data rekapitulasi SPB di database.
+                  {searchQuery
+                    ? "Tidak ada hasil pencarian."
+                    : "Belum ada data rekapitulasi SPB di database."}
                 </TableCell>
               </TableRow>
             ) : (
-              logs.map((item) => (
+              sortedAndFiltered.map((item) => (
                 <TableRow key={item.no_spb}>
                   <TableCell className="font-bold font-mono text-center max-w-35 py-3.5 px-4">
                     <Tooltip>
@@ -153,8 +280,15 @@ export function SpbTable({ logs, isAdmin, onRefresh }: SpbTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-center wrap-break-word whitespace-normal min-w-30 py-3.5 px-4">
-                    {item.kegiatan}
+                  <TableCell className="text-muted-foreground text-center max-w-40 py-3.5 px-4">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate block">{item.kegiatan}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">{item.kegiatan}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </TableCell>
                   <TableCell className="font-bold text-right whitespace-nowrap text-sm py-3.5 px-4">
                     Rp {Number(item.nominal).toLocaleString("id-ID")}

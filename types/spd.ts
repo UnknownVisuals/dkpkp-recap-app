@@ -6,6 +6,7 @@ export interface SpdFormData {
 }
 
 export interface SupabaseSpdRow {
+  id: string;
   no_spd: string;
   tanggal: string;
   kode_rekening: string;

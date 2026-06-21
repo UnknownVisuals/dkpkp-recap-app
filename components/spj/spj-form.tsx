@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from "@/components/ui/combobox";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useFileUpload } from "@/hooks/useFileUpload";
@@ -88,25 +89,28 @@ export function SpjForm({
               <Label htmlFor="relatedSpb" className="text-xs font-bold">
                 Referensi Hubungan Nomor SPB
               </Label>
-              <Select
+              <Combobox
                 value={formData.relatedSpb}
-                onValueChange={(value) => onChange("relatedSpb", value)}
-                disabled={isLoading || uploading}
+                onValueChange={(value) => onChange("relatedSpb", value ?? "")}
               >
-                <SelectTrigger
-                  id="relatedSpb"
-                  className={`w-full ${errors.relatedSpb ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                >
-                  <SelectValue placeholder="Pilih SPB yang sudah disetujui" />
-                </SelectTrigger>
-                <SelectContent>
-                  {approvedSpbs.map((spb) => (
-                    <SelectItem key={spb} value={spb}>
-                      {spb}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ComboboxInput
+                  placeholder="Pilih SPB yang sudah disetujui"
+                  disabled={isLoading || uploading}
+                  aria-invalid={!!errors.relatedSpb || undefined}
+                />
+                <ComboboxContent>
+                  <ComboboxList>
+                    {approvedSpbs.map((spb) => (
+                      <ComboboxItem key={spb} value={spb}>
+                        {spb}
+                      </ComboboxItem>
+                    ))}
+                  </ComboboxList>
+                  <ComboboxEmpty>
+                    SPB tidak ditemukan
+                  </ComboboxEmpty>
+                </ComboboxContent>
+              </Combobox>
               {errors.relatedSpb && (
                 <p className="text-xs font-medium text-destructive">
                   {errors.relatedSpb}

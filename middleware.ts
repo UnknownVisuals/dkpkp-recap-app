@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
-  if (pathname.startsWith("/spd")) {
+  if (pathname.startsWith("/spd") || pathname.startsWith("/rekening")) {
     const { createServerClient } = await import("@supabase/ssr");
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

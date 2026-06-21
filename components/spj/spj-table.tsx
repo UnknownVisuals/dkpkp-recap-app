@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ExternalLink,
@@ -8,6 +8,9 @@ import {
   XCircle,
   Loader2,
   Pencil,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +31,7 @@ import {
 import { ErrorDialog } from "@/components/ui/error-dialog";
 import { FilePreviewDialog } from "@/components/ui/file-preview-dialog";
 import { RejectDialog } from "@/components/spj/reject-dialog";
+import { SearchInput } from "@/components/ui/search-input";
 import { approveDocument, rejectDocument } from "@/lib/actions/spj";
 import type { SupabaseSpjRow, SpjStatus } from "@/types/spj";
 
@@ -36,6 +40,14 @@ interface SpjTableProps {
   isAdmin: boolean;
   onRefresh?: () => void;
 }
+
+type SortableColumn =
+  | "no_spj"
+  | "related_spb"
+  | "tanggal"
+  | "realisasi"
+  | "nama_penerima"
+  | "status";
 
 const statusVariant: Record<
   SpjStatus,
@@ -65,6 +77,72 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
     message: string;
   }>({ open: false, message: "" });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortColumn, setSortColumn] = useState<SortableColumn>("tanggal");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (column: SortableColumn) => {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedAndFiltered = useMemo(() => {
+    let result = [...logs];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.no_spj.toLowerCase().includes(q) ||
+          item.related_spb.toLowerCase().includes(q) ||
+          item.tanggal.toLowerCase().includes(q) ||
+          String(item.realisasi).includes(q) ||
+          item.nama_penerima.toLowerCase().includes(q) ||
+          item.status.toLowerCase().includes(q),
+      );
+    }
+
+    result.sort((a, b) => {
+      let cmp = 0;
+      switch (sortColumn) {
+        case "no_spj":
+          cmp = a.no_spj.localeCompare(b.no_spj);
+          break;
+        case "related_spb":
+          cmp = a.related_spb.localeCompare(b.related_spb);
+          break;
+        case "tanggal":
+          cmp = a.tanggal.localeCompare(b.tanggal);
+          break;
+        case "realisasi":
+          cmp = a.realisasi - b.realisasi;
+          break;
+        case "nama_penerima":
+          cmp = a.nama_penerima.localeCompare(b.nama_penerima);
+          break;
+        case "status":
+          cmp = a.status.localeCompare(b.status);
+          break;
+      }
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+
+    return result;
+  }, [logs, searchQuery, sortColumn, sortDirection]);
+
+  function getSortIcon(column: SortableColumn) {
+    if (sortColumn !== column)
+      return <ArrowUpDown className="h-3 w-3 opacity-30" />;
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3" />
+    ) : (
+      <ArrowDown className="h-3 w-3" />
+    );
+  }
 
   const handleApprove = async (type: "spj" | "spb", id: string) => {
     setLoadingId(id);
@@ -98,41 +176,93 @@ export function SpjTable({ logs, isAdmin, onRefresh }: SpjTableProps) {
   return (
     <TooltipProvider>
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="mb-4">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Cari SPJ..."
+          />
+        </div>
+
         <Table className="min-w-175">
           <TableHeader>
             <TableRow>
               <TableHead className="font-bold text-center w-35 h-12 px-4">
-                No. SPJ
+                <button
+                  onClick={() => handleSort("no_spj")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  No. SPJ
+{getSortIcon("no_spj")}
+                  </button>
               </TableHead>
               <TableHead className="font-bold text-center w-37.5 h-12 px-4">
-                No. SPB Terkait
+                <button
+                  onClick={() => handleSort("related_spb")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  No. SPB Terkait
+{getSortIcon("related_spb")}
+                  </button>
               </TableHead>
               <TableHead className="font-bold text-center w-27.5 h-12 px-4">
-                Tanggal
+                <button
+                  onClick={() => handleSort("tanggal")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Tanggal
+                  {getSortIcon("tanggal")}
+                </button>
               </TableHead>
-              <TableHead className="font-bold text-center h-12 px-4">
-                Total Realisasi
+              <TableHead className="font-bold text-center w-30 h-12 px-4">
+                <button
+                  onClick={() => handleSort("realisasi")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Total Realisasi
+{getSortIcon("realisasi")}
+                  </button>
               </TableHead>
               <TableHead className="font-bold text-center w-60 h-12 px-4">
-                Penerima Dana
+                <button
+                  onClick={() => handleSort("nama_penerima")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Penerima Dana
+{getSortIcon("nama_penerima")}
+                  </button>
               </TableHead>
-              <TableHead className="font-bold text-center w-24 h-12 px-4">Status</TableHead>
-              <TableHead className="font-bold text-center w-20 h-12 px-4">File</TableHead>
-              <TableHead className="font-bold text-center w-36 h-12 px-4">Aksi</TableHead>
+              <TableHead className="font-bold text-center w-24 h-12 px-4">
+                <button
+                  onClick={() => handleSort("status")}
+                  className="inline-flex items-center gap-1 cursor-pointer select-none"
+                >
+                  Status
+                  {getSortIcon("status")}
+                </button>
+              </TableHead>
+              <TableHead className="font-bold text-center w-20 h-12 px-4">
+                File
+              </TableHead>
+              <TableHead className="font-bold text-center w-36 h-12 px-4">
+                Aksi
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="text-xs leading-normal">
-            {logs.length === 0 ? (
+            {sortedAndFiltered.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
                   className="text-center py-12 text-muted-foreground"
                 >
-                  Belum ada data rekapitulasi SPJ di database.
+                  {searchQuery
+                    ? "Tidak ada hasil pencarian."
+                    : "Belum ada data rekapitulasi SPJ di database."}
                 </TableCell>
               </TableRow>
             ) : (
-              logs.map((item) => (
+              sortedAndFiltered.map((item) => (
                 <TableRow key={item.no_spj}>
                   <TableCell className="font-bold font-mono text-center max-w-35 py-3.5 px-4">
                     <Tooltip>
